@@ -2,59 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NMS Coordinate Converter</title>
+    <title>NMS GlyphMaster Web</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; }
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; }
-        input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; cursor: pointer; margin-top: 10px; }
-        #results { margin-top: 2rem; padding: 1rem; background: #f4f4f4; border-radius: 5px; }
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+        .box { background: #f4f4f4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; width: 100%; }
+        #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; }
     </style>
 </head>
 <body>
 
-    <h1>NMS Glyph Converter</h1>
+    <h1>NMS GlyphMaster</h1>
     
-    <div class="input-group">
-        <label>Portal Address (e.g., 100101001001)</label>
-        <input type="text" id="portalInput" placeholder="Enter 12-char hex code">
-    </div>
-    
-    <button onclick="convert()">Convert to Coordinates</button>
+    <div class="box">
+        <label>Input Type:</label>
+        <select id="inputType" onchange="toggleInputs()">
+            <option value="1">Voxel Inputs (X, Y, Z)</option>
+            <option value="2">Portal/Dec Address</option>
+            <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
+            <option value="4">12-Char Glyph Sequence</option>
+        </select>
 
-    <div id="results">
-        <p><strong>Galactic Coord:</strong> <span id="resGC">-</span></p>
-        <p><strong>Voxel X, Y, Z:</strong> <span id="resVoxel">-</span></p>
+        <div id="dynamicInputs"></div>
+        <button onclick="process()">Convert</button>
     </div>
+
+    <div id="output"></div>
 
     <script>
-        function convert() {
-            const raw = document.getElementById('portalInput').value.trim().toUpperCase();
-            if (raw.length !== 12) { alert("Invalid length. Must be 12 characters."); return; }
-
-            // Extract logic from your Python script
-            const p = parseInt(raw[0], 16);
-            const sss = parseInt(raw.substring(1, 4), 16);
-            const yy_hex = parseInt(raw.substring(4, 6), 16);
-            const zzz_hex = parseInt(raw.substring(6, 9), 16);
-            const xxx_hex = parseInt(raw.substring(9, 12), 16);
-
-            const xxx = (xxx_hex > 2047) ? (xxx_hex - 4096) : xxx_hex;
-            const yy = (yy_hex > 127) ? (yy_hex - 256) : yy_hex;
-            const zzz = (zzz_hex > 2047) ? (zzz_hex - 4096) : zzz_hex;
-
-            // Calculate Galactic
-            const gx = (xxx + 2047) & 0xFFFF;
-            const gy = (yy + 127) & 0xFFFF;
-            const gz = (zzz + 2047) & 0xFFFF;
-
-            document.getElementById('resGC').innerText = 
-                `${gx.toString(16).toUpperCase().padStart(4, '0')}:${gy.toString(16).toUpperCase().padStart(4, '0')}:${gz.toString(16).toUpperCase().padStart(4, '0')}:${sss.toString(16).toUpperCase().padStart(4, '0')}`;
-            
-            document.getElementById('resVoxel').innerText = `${xxx}, ${yy}, ${zzz}`;
+        function toggleInputs() {
+            const type = document.getElementById('inputType').value;
+            let html = '<label>Galaxy Index (0-255):</label><input type="number" id="gg" value="0">';
+            if(type === '1') html += '<label>Planet, System, X, Y, Z:</label><input type="text" id="raw" placeholder="P, SSS, X, Y, Z (comma separated)">';
+            else if(type === '3') html += '<label>Galactic Address:</label><input type="text" id="raw" placeholder="XXXX:YYYY:ZZZZ:SSSS">';
+            else html += '<label>Address/Sequence:</label><input type="text" id="raw" placeholder="Enter string">';
+            document.getElementById('dynamicInputs').innerHTML = html;
         }
+
+        function process() {
+            const type = document.getElementById('inputType').value;
+            const gg = parseInt(document.getElementById('gg').value);
+            const val = document.getElementById('raw').value.trim();
+            let p, sss, xxx, yy, zzz;
+
+            try {
+                if(type === '1') {
+                    [p, sss, xxx, yy, zzz] = val.split(',').map(v => parseInt(v.trim()));
+                } else if (type === '3') {
+                    const parts = val.split(':');
+                    xxx = parseInt(parts[0], 16) - 2047;
+                    yy = parseInt(parts[1], 16) - 127;
+                    zzz = parseInt(parts[2], 16) - 2047;
+                    sss = parseInt(parts[3], 16);
+                    p = 1; // Default
+                } else {
+                    p = parseInt(val[0], 16);
+                    sss = parseInt(val.substring(1, 4), 16);
+                    const y_hex = parseInt(val.substring(4, 6), 16);
+                    const z_hex = parseInt(val.substring(6, 9), 16);
+                    const x_hex = parseInt(val.substring(9, 12), 16);
+                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
+                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
+                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
+                }
+
+                const gx = (xxx + 2047) & 0xFFFF;
+                const gy = (yy + 127) & 0xFFFF;
+                const gz = (zzz + 2047) & 0xFFFF;
+
+                document.getElementById('output').innerHTML = `
+                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
+                    <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
+                `;
+            } catch(e) { alert("Invalid input format!"); }
+        }
+        toggleInputs();
     </script>
 </body>
 </html>
