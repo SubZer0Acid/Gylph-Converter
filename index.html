@@ -1,67 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
     <title>NMS GlyphMaster</title>
-    <link type="text/css" rel="stylesheet" href="css/glyphs.css">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            /* Updated path to background image */
+            background-image: url('img/portalbg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .box { 
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem; 
+            border-radius: 8px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        
+        .glyph-grid { display: none; margin-top: 15px; text-align: center; }
+        .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #ccc; }
+        select, input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
+        #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+        h1 { color: #fff; text-align: center; text-shadow: 2px 2px 4px #000; }
+    </style>
 </head>
-
 <body>
-    <div class="bg-overlay"></div>
-    <div class="content">
-      <div class="title">
-        <i class="portal"></i>
-        <span>NMS GlyphMaster</span>
-      </div>
 
-      <div class="menu">
-        <ul class="tabs-menu">
-          <li class="current"><a href="#tab-1">Share Coordinates</a></li>
-          <li><a href="#tab-2">Convert Portal Code</a></li>
-          <li><a href="#tab-3">Galactic Coordinates</a></li>
-        </ul>
-      </div>
+    <h1>NMS GlyphMaster</h1>
+    
+    <div class="box">
+        <label>Input Type:</label>
+        <select id="inputType" onchange="toggleInputs()">
+            <option value="1">Voxel Inputs (X, Y, Z)</option>
+            <option value="2">Portal/Dec Address</option>
+            <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
+            <option value="4">12-Char Glyph Sequence</option>
+        </select>
 
-      <div class="tab">
-        <div id="tab-1" class="tab-content">
-          <div class="sharecoords">
-            <div class="titletext">Share your portal Coordinates:</div>
-            <div class="glyphsblock">
-              <i class="glyph-0" data-id="0"></i><i class="glyph-1" data-id="1"></i>
-              <i class="glyph-2" data-id="2"></i><i class="glyph-3" data-id="3"></i>
-              <i class="glyph-4" data-id="4"></i><i class="glyph-5" data-id="5"></i>
-              <i class="glyph-6" data-id="6"></i><i class="glyph-7" data-id="7"></i>
-              <i class="glyph-8" data-id="8"></i><i class="glyph-9" data-id="9"></i>
-              <i class="glyph-A" data-id="A"></i><i class="glyph-B" data-id="B"></i>
-              <i class="glyph-C" data-id="C"></i><i class="glyph-D" data-id="D"></i>
-              <i class="glyph-E" data-id="E"></i><i class="glyph-F" data-id="F"></i>
-            </div>
-            <div class="sharecoordsbox">
-              <div class="clickedglyphs"></div>
-              <button class="clearglyphs">Clear</button>
-            </div>
-          </div>
+        <div id="textInputArea">
+            <label id="inputLabel">Enter Value:</label>
+            <input type="text" id="rawInput" placeholder="Enter data">
         </div>
 
-        <div id="tab-2" class="tab-content" style="display:none;">
-          <div class="loadcoords">
-            <div class="titletext">Portal code to Glyphs:</div>
-            <input class="glyphs" maxlength="12" placeholder="Paste code here...">
-            <div class="result"></div>
-          </div>
+        <div id="glyphSelector" class="glyph-grid">
+            <p>Sequence: <span id="seqDisplay" style="font-weight:bold; font-size: 1.2rem;">------------</span></p>
+            <div id="glyphGrid"></div>
+            <button onclick="clearSeq()" style="margin-top:10px;">Clear Sequence</button>
         </div>
-
-        <div id="tab-3" class="tab-content" style="display:none;">
-          <div class="loadcoords">
-            <div class="titletext">Galactic Address to Glyphs:</div>
-            <input class="gacoords" placeholder="000F:000F:000F:000F" maxlength="19">
-            <div class="portalglyphs"></div>
-          </div>
-        </div>
-      </div>
+        
+        <button onclick="process()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; margin-top:10px;">Convert</button>
     </div>
 
-    <script src='js/glyphs.js'></script>
+    <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
+
+    <script>
+        let currentSeq = Array(12).fill('-');
+
+        function toggleInputs() {
+            const type = document.getElementById('inputType').value;
+            const textInputArea = document.getElementById('textInputArea');
+            const glyphSelector = document.getElementById('glyphSelector');
+            const label = document.getElementById('inputLabel');
+
+            if(type === '4') {
+                textInputArea.style.display = 'none';
+                glyphSelector.style.display = 'block';
+            } else {
+                textInputArea.style.display = 'block';
+                glyphSelector.style.display = 'none';
+                if(type === '1') label.innerText = "Planet, System, X, Y, Z (comma separated):";
+                else if(type === '2') label.innerText = "Portal Hex String:";
+                else if(type === '3') label.innerText = "Galactic Address (XXXX:YYYY:ZZZZ:SSSS):";
+            }
+        }
+
+        // Initialize Glyph Grid
+        const grid = document.getElementById('glyphGrid');
+        "0123456789abcdef".split("").forEach(char => {
+            let img = document.createElement('img');
+            // Updated path to look inside the img/glyphs folder
+            img.src = `img/glyphs/${char.toLowerCase()}.png`;
+            img.className = 'glyph-btn';
+            img.onclick = () => {
+                let idx = currentSeq.indexOf('-');
+                if(idx !== -1) {
+                    currentSeq[idx] = char.toUpperCase();
+                    document.getElementById('seqDisplay').innerText = currentSeq.join('');
+                }
+            };
+            grid.appendChild(img);
+        });
+
+        function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
+
+        function process() {
+            const type = document.getElementById('inputType').value;
+            const inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
+            let p, sss, xxx, yy, zzz;
+
+            try {
+                if(type === '1') {
+                    [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
+                } else if (type === '3') {
+                    const parts = inputVal.split(':');
+                    xxx = parseInt(parts[0], 16) - 2047;
+                    yy = parseInt(parts[1], 16) - 127;
+                    zzz = parseInt(parts[2], 16) - 2047;
+                    sss = parseInt(parts[3], 16);
+                    p = 1;
+                } else {
+                    p = parseInt(inputVal[0], 16);
+                    sss = parseInt(inputVal.substring(1, 4), 16);
+                    const y_hex = parseInt(inputVal.substring(4, 6), 16);
+                    const z_hex = parseInt(inputVal.substring(6, 9), 16);
+                    const x_hex = parseInt(inputVal.substring(9, 12), 16);
+                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
+                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
+                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
+                }
+
+                const gx = (xxx + 2047) & 0xFFFF;
+                const gy = (yy + 127) & 0xFFFF;
+                const gz = (zzz + 2047) & 0xFFFF;
+
+                document.getElementById('output').innerHTML = `
+                    <div style="background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px;">
+                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
+                    <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
+                    </div>
+                `;
+            } catch(e) { alert("Invalid input format!"); }
+        }
+        toggleInputs();
+    </script>
 </body>
 </html>
