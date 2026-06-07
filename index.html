@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>NMS GlyphMaster</title>
     <style>
-        /* Background settings */
         body {
             font-family: sans-serif;
             margin: 0;
@@ -15,11 +14,11 @@
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            color: white; /* Default text color for the page */
+            color: white;
         }
 
         .box { 
-            background: rgba(0, 0, 0, 0.8); /* Darker container background */
+            background: rgba(0, 0, 0, 0.8);
             padding: 1.5rem; 
             border-radius: 8px; 
             max-width: 600px; 
@@ -27,11 +26,11 @@
             border: 1px solid #444;
         }
 
-        /* UPDATED: Text box styling to match requested aesthetic */
+        /* Black background, white text for all inputs and selects */
         input[type="text"], select {
-            background-color: #000000; /* Black background */
-            color: #ffffff;           /* White text */
-            border: 1px solid #555;    /* Dark border */
+            background-color: #000000;
+            color: #ffffff;
+            border: 1px solid #555;
             width: 100%; 
             padding: 10px; 
             margin: 8px 0; 
@@ -41,13 +40,15 @@
         .glyph-grid { display: none; margin-top: 15px; text-align: center; }
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #555; }
         
-        #output { border-top: 2px solid #555; margin-top: 1rem; padding-top: 1rem; text-shadow: 1px 1px 2px #000; }
-        h1 { text-align: center; text-shadow: 2px 2px 4px #000; }
+        #output { border-top: 2px solid #555; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+        h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
+        .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; }
     </style>
 </head>
 <body>
 
     <h1>NMS GlyphMaster</h1>
+    <div class="signature">Created By SubZer0Acid Leader Of The Phantom-Zer0 Civ</div>
     
     <div class="box">
         <label>Input Type:</label>
@@ -95,7 +96,6 @@
             }
         }
 
-        // Initialize Glyph Grid
         const grid = document.getElementById('glyphGrid');
         "0123456789abcdef".split("").forEach(char => {
             let img = document.createElement('img');
