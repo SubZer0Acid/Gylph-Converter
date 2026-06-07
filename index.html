@@ -6,7 +6,7 @@
     <style>
         body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
         .box { background: #f4f4f4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        .glyph-grid { display: none; margin-top: 15px; }
+        .glyph-grid { display: none; margin-top: 15px; text-align: center; }
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #ccc; }
         select, input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
         #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; }
@@ -33,10 +33,10 @@
         <div id="glyphSelector" class="glyph-grid">
             <p>Sequence: <span id="seqDisplay" style="font-weight:bold; font-size: 1.2rem;">------------</span></p>
             <div id="glyphGrid"></div>
-            <button onclick="clearSeq()">Clear</button>
+            <button onclick="clearSeq()" style="margin-top:10px;">Clear Sequence</button>
         </div>
         
-        <button onclick="process()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer;">Convert</button>
+        <button onclick="process()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; margin-top:10px;">Convert</button>
     </div>
 
     <div id="output"></div>
@@ -64,14 +64,14 @@
 
         // Initialize Glyph Grid
         const grid = document.getElementById('glyphGrid');
-        "0123456789ABCDEF".split("").forEach(char => {
+        "0123456789abcdef".split("").forEach(char => {
             let img = document.createElement('img');
-            img.src = `${char}.png`;
+            img.src = `${char.toLowerCase()}.png`;
             img.className = 'glyph-btn';
             img.onclick = () => {
                 let idx = currentSeq.indexOf('-');
                 if(idx !== -1) {
-                    currentSeq[idx] = char;
+                    currentSeq[idx] = char.toUpperCase();
                     document.getElementById('seqDisplay').innerText = currentSeq.join('');
                 }
             };
@@ -95,7 +95,7 @@
                     zzz = parseInt(parts[2], 16) - 2047;
                     sss = parseInt(parts[3], 16);
                     p = 1;
-                } else { // Handles Type 2 and Type 4 (Parsing Hex)
+                } else { // Handles Portal/Dec (2) and Glyph (4)
                     p = parseInt(inputVal[0], 16);
                     sss = parseInt(inputVal.substring(1, 4), 16);
                     const y_hex = parseInt(inputVal.substring(4, 6), 16);
