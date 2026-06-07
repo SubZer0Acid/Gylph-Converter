@@ -4,12 +4,32 @@
     <meta charset="UTF-8">
     <title>NMS GlyphMaster</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
-        .box { background: #f4f4f4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            /* Updated path to background image */
+            background-image: url('img/portalbg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .box { 
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem; 
+            border-radius: 8px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+        
         .glyph-grid { display: none; margin-top: 15px; text-align: center; }
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #ccc; }
         select, input { width: 100%; padding: 8px; margin: 8px 0; box-sizing: border-box; }
-        #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; }
+        #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+        h1 { color: #fff; text-align: center; text-shadow: 2px 2px 4px #000; }
     </style>
 </head>
 <body>
@@ -39,7 +59,7 @@
         <button onclick="process()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; margin-top:10px;">Convert</button>
     </div>
 
-    <div id="output"></div>
+    <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
 
     <script>
         let currentSeq = Array(12).fill('-');
@@ -66,7 +86,8 @@
         const grid = document.getElementById('glyphGrid');
         "0123456789abcdef".split("").forEach(char => {
             let img = document.createElement('img');
-            img.src = `${char.toLowerCase()}.png`;
+            // Updated path to look inside the img/glyphs folder
+            img.src = `img/glyphs/${char.toLowerCase()}.png`;
             img.className = 'glyph-btn';
             img.onclick = () => {
                 let idx = currentSeq.indexOf('-');
@@ -95,7 +116,7 @@
                     zzz = parseInt(parts[2], 16) - 2047;
                     sss = parseInt(parts[3], 16);
                     p = 1;
-                } else { // Handles Portal/Dec (2) and Glyph (4)
+                } else {
                     p = parseInt(inputVal[0], 16);
                     sss = parseInt(inputVal.substring(1, 4), 16);
                     const y_hex = parseInt(inputVal.substring(4, 6), 16);
@@ -111,9 +132,11 @@
                 const gz = (zzz + 2047) & 0xFFFF;
 
                 document.getElementById('output').innerHTML = `
+                    <div style="background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px;">
                     <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
                     <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
                     <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
+                    </div>
                 `;
             } catch(e) { alert("Invalid input format!"); }
         }
