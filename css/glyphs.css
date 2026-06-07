@@ -1,7 +1,0 @@
-/* This targets all text input boxes */
-input[type="text"], input.glyphs, input.gacoords {
-    background-color: #000000; /* Black background */
-    color: #ffffff;           /* White text */
-    border: 1px solid #333;    /* Optional: adds a subtle dark border */
-    padding: 8px;              /* Adjust for your desired spacing */
-}
