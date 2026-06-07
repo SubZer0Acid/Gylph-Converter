@@ -2,83 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NMS GlyphMaster Web</title>
+    <title>NMS GlyphMaster</title>
     <style>
-        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
-        .box { background: #f4f4f4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-        input, select { width: 100%; padding: 8px; margin: 5px 0 15px; box-sizing: border-box; }
-        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; width: 100%; }
-        #output { border-top: 2px solid #ccc; margin-top: 1rem; padding-top: 1rem; }
+        body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; text-align: center; }
+        .glyph-slot { display: inline-block; width: 40px; height: 40px; border: 2px solid #333; margin: 2px; font-size: 20px; line-height: 40px; cursor: pointer; background: #eee; }
+        .glyph-btn { width: 50px; cursor: pointer; margin: 5px; }
+        #sequence { margin: 1rem 0; font-weight: bold; font-size: 1.5rem; }
     </style>
 </head>
 <body>
 
-    <h1>NMS GlyphMaster</h1>
-    
-    <div class="box">
-        <label>Input Type:</label>
-        <select id="inputType" onchange="toggleInputs()">
-            <option value="1">Voxel Inputs (X, Y, Z)</option>
-            <option value="2">Portal/Dec Address</option>
-            <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
-            <option value="4">12-Char Glyph Sequence</option>
-        </select>
+    <h1>Glyph Sequence Input</h1>
+    <div id="sequence">------------</div>
+    <div id="glyphGrid"></div>
+    <button onclick="clearSeq()">Clear</button>
 
-        <div id="dynamicInputs"></div>
-        <button onclick="process()">Convert</button>
-    </div>
-
-    <div id="output"></div>
+    <div id="output" style="margin-top:20px; text-align: left;"></div>
 
     <script>
-        function toggleInputs() {
-            const type = document.getElementById('inputType').value;
-            let html = '<label>Galaxy Index (0-255):</label><input type="number" id="gg" value="0">';
-            if(type === '1') html += '<label>Planet, System, X, Y, Z:</label><input type="text" id="raw" placeholder="P, SSS, X, Y, Z (comma separated)">';
-            else if(type === '3') html += '<label>Galactic Address:</label><input type="text" id="raw" placeholder="XXXX:YYYY:ZZZZ:SSSS">';
-            else html += '<label>Address/Sequence:</label><input type="text" id="raw" placeholder="Enter string">';
-            document.getElementById('dynamicInputs').innerHTML = html;
+        let currentSeq = Array(12).fill('-');
+        const glyphGrid = document.getElementById('glyphGrid');
+
+        // Create clickable images for 0-9 and A-F
+        const hexChars = "0123456789ABCDEF".split("");
+        hexChars.forEach(char => {
+            let img = document.createElement('img');
+            img.src = `${char}.png`; // Assumes files are named 0.png, A.png, etc.
+            img.className = 'glyph-btn';
+            img.onclick = () => addGlyph(char);
+            glyphGrid.appendChild(img);
+        });
+
+        function addGlyph(char) {
+            let index = currentSeq.indexOf('-');
+            if(index !== -1) {
+                currentSeq[index] = char;
+                updateDisplay();
+            }
+            if(!currentSeq.includes('-')) process();
+        }
+
+        function clearSeq() {
+            currentSeq = Array(12).fill('-');
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('sequence').innerText = currentSeq.join('');
         }
 
         function process() {
-            const type = document.getElementById('inputType').value;
-            const gg = parseInt(document.getElementById('gg').value);
-            const val = document.getElementById('raw').value.trim();
-            let p, sss, xxx, yy, zzz;
+            const raw = currentSeq.join('');
+            // Logic from your script
+            const p = parseInt(raw[0], 16);
+            const sss = parseInt(raw.substring(1, 4), 16);
+            const y_hex = parseInt(raw.substring(4, 6), 16);
+            const z_hex = parseInt(raw.substring(6, 9), 16);
+            const x_hex = parseInt(raw.substring(9, 12), 16);
+            
+            const xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
+            const yy = (y_hex > 127) ? y_hex - 256 : y_hex;
+            const zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
 
-            try {
-                if(type === '1') {
-                    [p, sss, xxx, yy, zzz] = val.split(',').map(v => parseInt(v.trim()));
-                } else if (type === '3') {
-                    const parts = val.split(':');
-                    xxx = parseInt(parts[0], 16) - 2047;
-                    yy = parseInt(parts[1], 16) - 127;
-                    zzz = parseInt(parts[2], 16) - 2047;
-                    sss = parseInt(parts[3], 16);
-                    p = 1; // Default
-                } else {
-                    p = parseInt(val[0], 16);
-                    sss = parseInt(val.substring(1, 4), 16);
-                    const y_hex = parseInt(val.substring(4, 6), 16);
-                    const z_hex = parseInt(val.substring(6, 9), 16);
-                    const x_hex = parseInt(val.substring(9, 12), 16);
-                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
-                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
-                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
-                }
+            const gx = (xxx + 2047) & 0xFFFF;
+            const gy = (yy + 127) & 0xFFFF;
+            const gz = (zzz + 2047) & 0xFFFF;
 
-                const gx = (xxx + 2047) & 0xFFFF;
-                const gy = (yy + 127) & 0xFFFF;
-                const gz = (zzz + 2047) & 0xFFFF;
-
-                document.getElementById('output').innerHTML = `
-                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
-                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
-                    <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
-                `;
-            } catch(e) { alert("Invalid input format!"); }
+            document.getElementById('output').innerHTML = `
+                <div style="background:#f4f4f4; padding:10px;">
+                <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
+                </div>
+            `;
         }
-        toggleInputs();
     </script>
 </body>
 </html>
