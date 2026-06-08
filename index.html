@@ -38,6 +38,7 @@
 
         .glyph-grid { display: none; margin-top: 15px; text-align: center; }
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #555; }
+        .result-glyph { width: 30px; margin: 2px; border: 1px solid #777; }
         
         #output { border-top: 2px solid #555; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
@@ -116,14 +117,24 @@
 
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
 
+        function renderGlyphs(hexString) {
+            let html = '<div style="margin-top:10px;">';
+            for(let char of hexString) {
+                html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`;
+            }
+            html += '</div>';
+            return html;
+        }
+
         function process() {
             const type = document.getElementById('inputType').value;
-            const inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
+            let inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
             let p, sss, xxx, yy, zzz;
 
             try {
                 if(type === '1') {
                     [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '3') {
                     const parts = inputVal.split(':');
                     xxx = parseInt(parts[0], 16) - 2047;
@@ -131,6 +142,7 @@
                     zzz = parseInt(parts[2], 16) - 2047;
                     sss = parseInt(parts[3], 16);
                     p = 1;
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else {
                     p = parseInt(inputVal[0], 16);
                     sss = parseInt(inputVal.substring(1, 4), 16);
@@ -146,15 +158,15 @@
                 const gy = (yy + 127) & 0xFFFF;
                 const gz = (zzz + 2047) & 0xFFFF;
 
-                // Core Void Validation Logic
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
                 const status = isCore ? "Core Void Detected" : "Standard Space";
 
                 document.getElementById('output').innerHTML = `
                     <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444;">
+                    ${renderGlyphs(inputVal)}
                     <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
                     <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
-                    <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
+                    <p><strong>Portal Code:</strong> ${inputVal.toUpperCase()}</p>
                     <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
                     </div>
                 `;
