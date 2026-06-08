@@ -44,6 +44,9 @@
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; margin-top: 10px; }
+        
+        /* Styles for the bottom images */
+        .footer-images { text-align: center; margin-top: 40px; padding: 20px; }
     </style>
 </head>
 <body>
@@ -80,10 +83,13 @@
 
     <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
 
-    <!-- Clickable map image in the bottom left -->
     <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank" style="position: fixed; bottom: 10px; left: 10px; width: 300px; z-index: 1000;">
         <img src="img/CORE_VOID_MAP_256_v7.webp" alt="Core Void Map" style="width: 100%; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
     </a>
+
+    <div class="footer-images">
+        <img src="img/Glyphs.jpg" alt="No Man's Sky Glyph Decoder" style="max-width: 80%; border: 1px solid #444; border-radius: 4px;">
+    </div>
 
     <script>
         let currentSeq = Array(12).fill('-');
