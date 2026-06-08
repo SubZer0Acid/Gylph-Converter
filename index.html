@@ -4,12 +4,41 @@
     <meta charset="UTF-8">
     <title>No Man's Sky GlyphMaster</title>
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
-        .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
-        input[type="text"], select { background-color: #000000; color: #ffffff; border: 1px solid #555; width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+            background-image: url('img/portalbg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+        .box { 
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1.5rem; 
+            border-radius: 8px; 
+            max-width: 600px; 
+            margin: 0 auto; 
+            border: 1px solid #444;
+        }
+
+        input[type="text"], select {
+            background-color: #000000;
+            color: #ffffff;
+            border: 1px solid #555;
+            width: 100%; 
+            padding: 10px; 
+            margin: 8px 0; 
+            box-sizing: border-box;
+        }
+
         .glyph-grid { display: none; margin-top: 15px; text-align: center; }
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #555; }
-        .result-glyph { width: 30px; margin: 2px; border: 1px solid #777; }
+        
         #output { border-top: 2px solid #555; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
@@ -19,7 +48,10 @@
 <body>
 
     <h1>No Man's Sky GlyphMaster</h1>
-    <div class="signature">Created By SubZer0Acid<br>Leader Of The Phantom-Zer0 Civ</div>
+    <div class="signature">
+        Created By SubZer0Acid<br>
+        Leader Of The Phantom-Zer0 Civ
+    </div>
     
     <div class="box">
         <label>Input Type:</label>
@@ -28,7 +60,6 @@
             <option value="2">Portal/Dec Address</option>
             <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
             <option value="4">12-Char Glyph Sequence</option>
-            <option value="5">Universal Address (0x...)</option>
         </select>
 
         <div id="textInputArea">
@@ -65,7 +96,6 @@
                 if(type === '1') label.innerText = "Planet, System, X, Y, Z (comma separated):";
                 else if(type === '2') label.innerText = "Portal Hex String:";
                 else if(type === '3') label.innerText = "Galactic Address (XXXX:YYYY:ZZZZ:SSSS):";
-                else if(type === '5') label.innerText = "Universal Address (e.g. 0x...):";
             }
         }
 
@@ -86,21 +116,51 @@
 
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
 
-        function renderGlyphs(hexString) {
-            let html = '<div style="margin-top:10px;">';
-            for(let char of hexString) {
-                html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`;
-            }
-            html += '</div>';
-            return html;
-        }
-
         function process() {
             const type = document.getElementById('inputType').value;
-            let val = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
-            let p, sss, xxx, yy, zzz, gg = 0;
+            const inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
+            let p, sss, xxx, yy, zzz;
 
             try {
                 if(type === '1') {
-                    [p, sss, xxx, yy, zzz] = val.split(',').map(v => parseInt(v.trim()));
-                } else if (type === '3')
+                    [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
+                } else if (type === '3') {
+                    const parts = inputVal.split(':');
+                    xxx = parseInt(parts[0], 16) - 2047;
+                    yy = parseInt(parts[1], 16) - 127;
+                    zzz = parseInt(parts[2], 16) - 2047;
+                    sss = parseInt(parts[3], 16);
+                    p = 1;
+                } else {
+                    p = parseInt(inputVal[0], 16);
+                    sss = parseInt(inputVal.substring(1, 4), 16);
+                    const y_hex = parseInt(inputVal.substring(4, 6), 16);
+                    const z_hex = parseInt(inputVal.substring(6, 9), 16);
+                    const x_hex = parseInt(inputVal.substring(9, 12), 16);
+                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
+                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
+                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
+                }
+
+                const gx = (xxx + 2047) & 0xFFFF;
+                const gy = (yy + 127) & 0xFFFF;
+                const gz = (zzz + 2047) & 0xFFFF;
+
+                // Core Void Validation Logic
+                const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
+                const status = isCore ? "Core Void Detected" : "Standard Space";
+
+                document.getElementById('output').innerHTML = `
+                    <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444;">
+                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
+                    <p><strong>Portal Code:</strong> ${p.toString(16).toUpperCase()}${sss.toString(16).toUpperCase().padStart(3,'0')}${ (yy & 0xFF).toString(16).toUpperCase().padStart(2,'0')}${(zzz & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}${(xxx & 0xFFF).toString(16).toUpperCase().padStart(3,'0')}</p>
+                    <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
+                    </div>
+                `;
+            } catch(e) { alert("Invalid input format!"); }
+        }
+        toggleInputs();
+    </script>
+</body>
+</html>
