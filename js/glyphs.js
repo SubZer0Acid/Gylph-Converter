@@ -3,7 +3,7 @@ $('document').ready(function() {
   var version = "V 1.2";
   $('.version').html(version);
   
-  // --- Updated Helper for NMS Calculations ---
+  // --- NEW: Helper for NMS Calculations (Ported from GlyphMaster.py) ---
   const GlyphConverter = {
     pad: (num, len) => num.toString(16).toUpperCase().padStart(len, '0'),
 
@@ -12,18 +12,12 @@ $('document').ready(function() {
     },
 
     calculateAll: function(p, sss, xxx, yy, zzz, gg = 0) {
-      // These are for the 12-character display (masked/offset)
       const gx = (xxx + 2047) & 0xFFFF;
       const gy = (yy + 127) & 0xFFFF;
       const gz = (zzz + 2047) & 0xFFFF;
       const gc = `${this.pad(gx, 4)}:${this.pad(gy, 4)}:${this.pad(gz, 4)}:${this.pad(sss, 4)}`;
-      
-      // This is the 12-char Portal Code
       const portal = `${p.toString(16).toUpperCase()}${this.pad(sss, 3)}${this.pad(yy & 0xFF, 2)}${this.pad(zzz & 0xFFF, 3)}${this.pad(xxx & 0xFFF, 3)}`;
-      
-      // Use the raw input variables to generate the UA, preserving precision
       const ua = this.formatUA(p, sss, gg, yy, zzz, xxx);
-      
       return { gc, portal: portal.toUpperCase(), ua };
     }
   };
@@ -138,3 +132,34 @@ $('document').ready(function() {
     $(this).val(val);
     if (val.length == 19) {
       var [A, B, C, D] = val.split(":");
+      var res = GlyphConverter.calculateAll(parseInt($(".portalNumber option:selected").val())-1, parseInt(D,16), parseInt(A,16)-2047, parseInt(B,16)-127, parseInt(C,16)-2047);
+      $(".portalglyphs").html(res.portal.split('').map(c => `<i class="glyph-${c}"></i>`).join(''));
+      $(".gacoordstoglyphs").html(res.portal);
+      $("#gacoordstoglyphslink").val(window.location.hostname + '/#' + res.portal);
+      $('.portalglyphs, .portalGlyphBox, .portalCodeBox').addClass('blackgd');
+      $('.portalTitle, #copygaaddressLink, .clearga').show();
+    }
+  });
+
+  // Preserve existing UI cleanup/tab click handlers...
+  $(".deleteglyphs").click(function(){ 
+    var val = $('.clickedglyphs').html().slice(0, -1);
+    $('.clickedglyphs').html(val);
+    $('.glyphscheck').children().last().remove();
+  });
+  $('.clearglyphs').click(function(){ });
+  $('.clearglyphsurl').click(function(){ });
+  $('.clearga').click(function(){ });
+  $(".tabs-menu a").click(function(event) {
+    event.preventDefault();
+    $(this).parent().addClass("current");
+    $(this).parent().siblings().removeClass("current");
+    var tab = $(this).attr("href");
+    $(".tab-content").not(tab).css("display", "none");
+    $(tab).fadeIn();
+  });
+
+});
+
+function randomname() { }
+function RandomColor(){ }
