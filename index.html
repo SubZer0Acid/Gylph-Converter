@@ -126,7 +126,6 @@
                     xxx = parseInt(val.substring(9, 12), 16);
                 }
                 
-                // Normalization
                 xxx = (xxx > 2047) ? xxx - 4096 : (xxx < -2048 ? xxx + 4096 : xxx);
                 yy = (yy > 127) ? yy - 256 : yy;
                 zzz = (zzz > 2047) ? zzz - 4096 : (zzz < -2048 ? zzz + 4096 : zzz);
@@ -143,8 +142,9 @@
                     <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444;">
                     ${renderGlyphs(portal)}
                     <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
                     <p><strong>Universal Address:</strong> ${ua}</p>
-                    <p style="font-size: 0.8em; color: #aaa;">UA Format: [??][P][SSS][GG][YY][ZZZ][XXX]</p>
+                    <p style="font-size: 0.8em; color: #aaa;">UA Format: [??][P][SSS][GG][YY][ZZZ][XXX] – (? = Unknown / P = Planet / S = Star System / G = Galaxy / Y = Height / Z = Width / X = Length)</p>
                     <p><strong>Status:</strong> ${isCore ? '<span class="warning">Core Void Detected</span>' : 'Standard Space'}</p>
                     </div>
                 `;
