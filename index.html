@@ -148,7 +148,6 @@
                     p = 1;
                     inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '5') {
-                    // Remove 0x prefix if present, then extract components
                     const clean = inputVal.toLowerCase().replace('0x', '');
                     p = parseInt(clean.substring(2, 3), 16);
                     sss = parseInt(clean.substring(3, 6), 16);
@@ -157,38 +156,3 @@
                     zzz = parseInt(clean.substring(10, 13), 16);
                     zzz = (zzz > 2047) ? zzz - 4096 : zzz;
                     xxx = parseInt(clean.substring(13, 16), 16);
-                    xxx = (xxx > 2047) ? xxx - 4096 : xxx;
-                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
-                } else {
-                    p = parseInt(inputVal[0], 16);
-                    sss = parseInt(inputVal.substring(1, 4), 16);
-                    const y_hex = parseInt(inputVal.substring(4, 6), 16);
-                    const z_hex = parseInt(inputVal.substring(6, 9), 16);
-                    const x_hex = parseInt(inputVal.substring(9, 12), 16);
-                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
-                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
-                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
-                }
-
-                const gx = (xxx + 2047) & 0xFFFF;
-                const gy = (yy + 127) & 0xFFFF;
-                const gz = (zzz + 2047) & 0xFFFF;
-
-                const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
-                const status = isCore ? "Core Void Detected" : "Standard Space";
-
-                document.getElementById('output').innerHTML = `
-                    <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444;">
-                    ${renderGlyphs(inputVal)}
-                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
-                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
-                    <p><strong>Portal Code:</strong> ${inputVal.toUpperCase()}</p>
-                    <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
-                    </div>
-                `;
-            } catch(e) { alert("Invalid input format!"); }
-        }
-        toggleInputs();
-    </script>
-</body>
-</html>
