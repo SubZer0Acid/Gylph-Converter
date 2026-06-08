@@ -80,6 +80,11 @@
 
     <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
 
+    <!-- Clickable map image in the bottom left -->
+    <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank" style="position: fixed; bottom: 10px; left: 10px; width: 250px; z-index: 1000;">
+        <img src="img/CORE_VOID_MAP_256_v7.webp" alt="Core Void Map" style="width: 100%; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+    </a>
+
     <script>
         let currentSeq = Array(12).fill('-');
 
@@ -148,7 +153,6 @@
                     p = 1;
                     inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '5') {
-                    // Remove 0x prefix if present, then extract components
                     const clean = inputVal.toLowerCase().replace('0x', '');
                     p = parseInt(clean.substring(2, 3), 16);
                     sss = parseInt(clean.substring(3, 6), 16);
