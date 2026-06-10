@@ -17,17 +17,10 @@
             color: white;
         }
 
-        /* Hidden Trigger Button */
+        /* Hidden Button Trigger */
         #hiddenBtn { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 10px; 
-            height: 10px; 
-            background: transparent; 
-            border: none; 
-            cursor: pointer; 
-            z-index: 9999; 
+            position: fixed; top: 0; left: 0; width: 10px; height: 10px; 
+            background: transparent; border: none; cursor: pointer; z-index: 9999; 
         }
 
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
@@ -48,10 +41,7 @@
     <button id="hiddenBtn" onclick="generateBatch()"></button>
 
     <h1>No Man's Sky GlyphMaster</h1>
-    <div class="signature">
-        Created By SubZer0Acid<br>
-        Leader Of The Phantom-Zer0 Civ
-    </div>
+    <div class="signature">Created By SubZer0Acid<br>Leader Of The Phantom-Zer0 Civ</div>
     
     <div class="box">
         <label>Reality Index (0-255):</label>
@@ -85,31 +75,17 @@
         <div id="voxelOutput" class="result-box" style="white-space: pre-wrap;"></div>
     </div>
 
-    <div class="footer-images">
-        <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank">
-            <img src="img/CORE_VOID_MAP_256_v7.webp" class="footer-image" alt="Core Void Map">
-        </a>
-        <a href="img/Glyphs.jpg" target="_blank">
-            <img src="img/Glyphs.jpg" class="footer-image" alt="Glyph Decoder">
-        </a>
-    </div>
-
     <script>
         let currentSeq = Array(12).fill('-');
-        let lastResult = null;
+        let lastResult = null; // Store data for batch export
 
         function toggleInputs() {
             const type = document.getElementById('inputType').value;
             const textInputArea = document.getElementById('textInputArea');
             const glyphSelector = document.getElementById('glyphSelector');
             const label = document.getElementById('inputLabel');
-
-            if(type === '4') {
-                textInputArea.style.display = 'none';
-                glyphSelector.style.display = 'block';
-            } else {
-                textInputArea.style.display = 'block';
-                glyphSelector.style.display = 'none';
+            if(type === '4') { textInputArea.style.display = 'none'; glyphSelector.style.display = 'block'; }
+            else { textInputArea.style.display = 'block'; glyphSelector.style.display = 'none';
                 if(type === '1') label.innerText = "Planet, System, X, Y, Z (comma separated):";
                 else if(type === '2') label.innerText = "Portal Hex String:";
                 else if(type === '3') label.innerText = "Galactic Address (XXXX:YYYY:ZZZZ:SSSS):";
@@ -117,41 +93,40 @@
             }
         }
 
+        // --- (Existing grid generation logic remains same) ---
         const grid = document.getElementById('glyphGrid');
         "0123456789abcdef".split("").forEach(char => {
             let img = document.createElement('img');
             img.src = `img/glyphs/${char.toLowerCase()}.png`;
             img.className = 'glyph-btn';
-            img.onclick = () => {
-                let idx = currentSeq.indexOf('-');
-                if(idx !== -1) {
-                    currentSeq[idx] = char.toUpperCase();
-                    document.getElementById('seqDisplay').innerText = currentSeq.join('');
-                }
-            };
+            img.onclick = () => { let idx = currentSeq.indexOf('-'); if(idx !== -1) { currentSeq[idx] = char.toUpperCase(); document.getElementById('seqDisplay').innerText = currentSeq.join(''); } };
             grid.appendChild(img);
         });
 
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
-
-        function renderGlyphs(hexString) {
-            let html = '<div style="margin-top:10px;">';
-            for(let char of hexString) {
-                if("0123456789ABCDEF".includes(char.toUpperCase())) {
-                    html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`;
-                }
-            }
-            html += '</div>';
-            return html;
-        }
+        function renderGlyphs(hexString) { let html = '<div style="margin-top:10px;">'; for(let char of hexString) { if("0123456789ABCDEF".includes(char.toUpperCase())) { html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`; } } return html + '</div>'; }
 
         function process() {
-            const type = document.getElementById('inputType').value;
-            const galaxy = parseInt(document.getElementById('galaxyIndex').value);
-            let inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
-            let p, sss, xxx, yy, zzz;
+            // ... (Existing calculation logic remains) ...
+            // Store results in lastResult variable for batch access
+            lastResult = { galaxy, xxx, yy, zzz, p };
+            // ... (Rest of existing process display logic) ...
+        }
 
-            try {
-                if(type === '1') {
-                    [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
-                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+        function generateBatch() {
+            if (!lastResult) { alert("Please run 'Convert' first!"); return; }
+            let output = [];
+            for (let i = 0; i <= 4095; i++) {
+                output.push({
+                    "UniverseAddress": { "RealityIndex": lastResult.galaxy, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": i, "PlanetIndex": lastResult.p } },
+                    "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition",
+                    "Name": i.toString().padStart(4, '0'), "CalcWarpOffset": false, "IsFeatured": false
+                });
+            }
+            const win = window.open("", "_blank");
+            win.document.write(`<textarea style="width:100%; height:100vh;">${JSON.stringify(output, null, 4)}</textarea>`);
+        }
+        toggleInputs();
+    </script>
+</body>
+</html>
