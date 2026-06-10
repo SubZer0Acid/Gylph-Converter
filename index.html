@@ -44,9 +44,7 @@
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; margin-top: 10px; }
-        
-        /* Styles for the bottom image footer */
-        .footer-images { text-align: center; margin-top: 50px; padding: 20px; }
+        pre { background: #111; padding: 10px; border-radius: 5px; overflow-x: auto; color: #00ff00; }
     </style>
 </head>
 <body>
@@ -82,16 +80,6 @@
     </div>
 
     <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
-
-    <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank" style="position: fixed; bottom: 10px; left: 10px; width: 300px; z-index: 1000;">
-        <img src="img/CORE_VOID_MAP_256_v7.webp" alt="Core Void Map" style="width: 100%; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
-    </a>
-
-    <div class="footer-images">
-        <a href="img/Glyphs.jpg" target="_blank">
-            <img src="img/Glyphs.jpg" alt="No Man's Sky Glyph Decoder" style="max-width: 80%; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
-        </a>
-    </div>
 
     <script>
         let currentSeq = Array(12).fill('-');
@@ -145,73 +133,25 @@
 
         function process() {
             const type = document.getElementById('inputType').value;
-            let rawInputVal = document.getElementById('rawInput').value.trim();
-            let portalCode, p, sss, xxx, yy, zzz;
-            let universalAddr = "N/A";
+            let inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
+            let p, sss, xxx, yy, zzz;
 
             try {
                 if(type === '1') {
-                    [p, sss, xxx, yy, zzz] = rawInputVal.split(',').map(v => parseInt(v.trim()));
-                    portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+                    [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '3') {
-                    const parts = rawInputVal.split(':');
+                    const parts = inputVal.split(':');
                     xxx = parseInt(parts[0], 16) - 2047;
                     yy = parseInt(parts[1], 16) - 127;
                     zzz = parseInt(parts[2], 16) - 2047;
                     sss = parseInt(parts[3], 16);
                     p = 1;
-                    portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '5') {
-                    universalAddr = rawInputVal.replace('0x', '');
-                    p = parseInt(universalAddr.substring(2, 3), 16);
-                    sss = parseInt(universalAddr.substring(3, 6), 16);
-                    yy = parseInt(universalAddr.substring(8, 10), 16);
+                    const clean = inputVal.toLowerCase().replace('0x', '');
+                    p = parseInt(clean.substring(2, 3), 16);
+                    sss = parseInt(clean.substring(3, 6), 16);
+                    yy = parseInt(clean.substring(8, 10), 16);
                     yy = (yy > 127) ? yy - 256 : yy;
-                    zzz = parseInt(universalAddr.substring(10, 13), 16);
-                    zzz = (zzz > 2047) ? zzz - 4096 : zzz;
-                    xxx = parseInt(universalAddr.substring(13, 16), 16);
-                    xxx = (xxx > 2047) ? xxx - 4096 : xxx;
-                    portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
-                } else {
-                    portalCode = (type === '4') ? currentSeq.join('') : rawInputVal;
-                    p = parseInt(portalCode[0], 16);
-                    sss = parseInt(portalCode.substring(1, 4), 16);
-                    const y_hex = parseInt(portalCode.substring(4, 6), 16);
-                    const z_hex = parseInt(portalCode.substring(6, 9), 16);
-                    const x_hex = parseInt(portalCode.substring(9, 12), 16);
-                    xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
-                    yy = (y_hex > 127) ? y_hex - 256 : y_hex;
-                    zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
-                }
-
-                // If Universal address wasn't specifically provided, generate it
-                if (universalAddr === "N/A") {
-                    const y_unsigned = (yy & 0xFF).toString(16).padStart(2, '0');
-                    const z_unsigned = (zzz & 0xFFF).toString(16).padStart(3, '0');
-                    const x_unsigned = (xxx & 0xFFF).toString(16).padStart(3, '0');
-                    universalAddr = `00${p.toString(16)}${sss.toString(16).padStart(3,'0')}00${y_unsigned}${z_unsigned}${x_unsigned}`;
-                }
-
-                const gx = (xxx + 2047) & 0xFFFF;
-                const gy = (yy + 127) & 0xFFFF;
-                const gz = (zzz + 2047) & 0xFFFF;
-
-                const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
-                const status = isCore ? "Core Void Detected" : "Standard Space";
-
-                document.getElementById('output').innerHTML = `
-                    <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444;">
-                    ${renderGlyphs(portalCode)}
-                    <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
-                    <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
-                    <p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p>
-                    <p><strong>Universal Address:</strong> ${universalAddr.toUpperCase()}</p>
-                    <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
-                    </div>
-                `;
-            } catch(e) { alert("Invalid input format!"); }
-        }
-        toggleInputs();
-    </script>
-</body>
-</html>
+                    zzz = parseInt(clean.substring(10, 13),
