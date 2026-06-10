@@ -80,6 +80,10 @@
 
     <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
 
+    <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank" style="position: fixed; bottom: 10px; left: 10px; width: 300px; z-index: 1000;">
+        <img src="img/CORE_VOID_MAP_256_v7.webp" alt="Core Void Map" style="width: 100%; border: 1px solid #444; border-radius: 4px; cursor: pointer;">
+    </a>
+
     <script>
         let currentSeq = Array(12).fill('-');
 
@@ -171,7 +175,7 @@
                     zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
                 }
 
-                // If Universal address wasn't specifically provided, generate a standard one
+                // If Universal address wasn't specifically provided, generate it
                 if (universalAddr === "N/A") {
                     const y_unsigned = (yy & 0xFF).toString(16).padStart(2, '0');
                     const z_unsigned = (zzz & 0xFFF).toString(16).padStart(3, '0');
