@@ -6,11 +6,11 @@
     <style>
         body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
         
-        /* Hidden Trigger Button - 18% from left, 62% down */
+        /* Hidden Trigger Button - 16% from left, 62% down */
         #hiddenBtn { 
             position: fixed; 
             top: 62%; 
-            left: 18%; 
+            left: 16%; 
             width: 15px; 
             height: 15px; 
             background: transparent; 
@@ -107,7 +107,7 @@
             img.src = `img/glyphs/${char.toLowerCase()}.png`;
             img.className = 'glyph-btn';
             img.onclick = () => {
-                let idx = currentSeq.indexOf('-');
+                let idx = currentSeq.indexOf('-')
                 if(idx !== -1) {
                     currentSeq[idx] = char.toUpperCase();
                     document.getElementById('seqDisplay').innerText = currentSeq.join('');
