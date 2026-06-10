@@ -26,7 +26,7 @@
             border: 1px solid #444;
         }
 
-        input[type="text"], input[type="number"], select {
+        input[type="text"], select {
             background-color: #000000;
             color: #ffffff;
             border: 1px solid #555;
@@ -70,9 +70,6 @@
     </div>
     
     <div class="box">
-        <label>Galaxy/Reality Index (0-255):</label>
-        <input type="number" id="galaxyInput" value="0" min="0" max="255">
-
         <label>Input Type:</label>
         <select id="inputType" onchange="toggleInputs()">
             <option value="1">Voxel Inputs (X, Y, Z)</option>
@@ -149,12 +146,6 @@
         }
 
         function process() {
-            const galaxyIdx = parseInt(document.getElementById('galaxyInput').value);
-            if (isNaN(galaxyIdx) || galaxyIdx < 0 || galaxyIdx > 255) {
-                alert("Please enter a valid Galaxy Index (0-255).");
-                return;
-            }
-
             const type = document.getElementById('inputType').value;
             let inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
             let p, sss, xxx, yy, zzz;
@@ -162,19 +153,18 @@
             try {
                 if(type === '1') {
                     [p, sss, xxx, yy, zzz] = inputVal.split(',').map(v => parseInt(v.trim()));
-                    p = galaxyIdx; // Override with chosen galaxy
-                    inputVal = `${p.toString(16).padStart(1,'0')}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '3') {
                     const parts = inputVal.split(':');
                     xxx = parseInt(parts[0], 16) - 2047;
                     yy = parseInt(parts[1], 16) - 127;
                     zzz = parseInt(parts[2], 16) - 2047;
                     sss = parseInt(parts[3], 16);
-                    p = galaxyIdx; 
-                    inputVal = `${p.toString(16).padStart(1,'0')}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+                    p = 1;
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else if (type === '5') {
                     const clean = inputVal.toLowerCase().replace('0x', '');
-                    // For universal, update reality index component
+                    p = parseInt(clean.substring(2, 3), 16);
                     sss = parseInt(clean.substring(3, 6), 16);
                     yy = parseInt(clean.substring(8, 10), 16);
                     yy = (yy > 127) ? yy - 256 : yy;
@@ -182,10 +172,9 @@
                     zzz = (zzz > 2047) ? zzz - 4096 : zzz;
                     xxx = parseInt(clean.substring(13, 16), 16);
                     xxx = (xxx > 2047) ? xxx - 4096 : xxx;
-                    p = galaxyIdx;
-                    inputVal = `${p.toString(16).padStart(1,'0')}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
+                    inputVal = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
                 } else {
-                    p = galaxyIdx;
+                    p = parseInt(inputVal[0], 16);
                     sss = parseInt(inputVal.substring(1, 4), 16);
                     const y_hex = parseInt(inputVal.substring(4, 6), 16);
                     const z_hex = parseInt(inputVal.substring(6, 9), 16);
@@ -193,7 +182,6 @@
                     xxx = (x_hex > 2047) ? x_hex - 4096 : x_hex;
                     yy = (y_hex > 127) ? y_hex - 256 : y_hex;
                     zzz = (z_hex > 2047) ? z_hex - 4096 : z_hex;
-                    inputVal = `${p.toString(16).padStart(1,'0')}${inputVal.substring(1)}`;
                 }
 
                 const gx = (xxx + 2047) & 0xFFFF;
@@ -210,7 +198,7 @@
                         "VoxelY": yy,
                         "VoxelZ": zzz,
                         "SolarSystemIndex": sss,
-                        "PlanetIndex": parseInt(inputVal[0], 16)
+                        "PlanetIndex": p
                     }
                 };
 
