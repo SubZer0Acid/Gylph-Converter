@@ -5,6 +5,7 @@
     <title>No Man's Sky GlyphMaster</title>
     <style>
         body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
+        /* Hidden Trigger Button - Top Left */
         #hiddenBtn { position: fixed; top: 0; left: 0; width: 10px; height: 10px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
         input[type="text"], input[type="number"], select { background-color: #000000; color: #ffffff; border: 1px solid #555; width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
@@ -163,7 +164,24 @@
             if (!lastResult) { alert("Please run 'Convert' first!"); return; }
             let output = [];
             for (let i = 0; i <= 4095; i++) {
-                output.push({ "UniverseAddress": { "RealityIndex": lastResult.galaxy, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": i, "PlanetIndex": lastResult.p } }, "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition", "Name": i.toString().padStart(4, '0'), "CalcWarpOffset": false, "IsFeatured": false });
+                output.push({ 
+                    "UniverseAddress": { 
+                        "RealityIndex": lastResult.galaxy, 
+                        "GalacticAddress": { 
+                            "VoxelX": lastResult.xxx, 
+                            "VoxelY": lastResult.yy, 
+                            "VoxelZ": lastResult.zzz, 
+                            "SolarSystemIndex": i, 
+                            "PlanetIndex": lastResult.p 
+                        } 
+                    }, 
+                    "Position": [1.0, 1.0, 1.0], 
+                    "Facing": [1.0, 1.0, 1.0], 
+                    "TeleporterType": "SpacestationFixPosition", 
+                    "Name": i.toString().padStart(4, '0'), 
+                    "CalcWarpOffset": false, 
+                    "IsFeatured": false 
+                });
             }
             const win = window.open("", "_blank");
             win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`);
