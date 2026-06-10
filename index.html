@@ -26,7 +26,7 @@
             border: 1px solid #444;
         }
 
-        input[type="text"], select {
+        input[type="text"], input[type="number"], select {
             background-color: #000000;
             color: #ffffff;
             border: 1px solid #555;
@@ -70,6 +70,9 @@
     </div>
     
     <div class="box">
+        <label>Reality Index (0-255):</label>
+        <input type="number" id="galaxyIndex" value="0" min="0" max="255">
+
         <label>Input Type:</label>
         <select id="inputType" onchange="toggleInputs()">
             <option value="1">Voxel Inputs (X, Y, Z)</option>
@@ -95,7 +98,10 @@
 
     <div class="results-container">
         <div id="output" class="result-box"></div>
-        <div id="voxelOutput" class="result-box"></div>
+        <div id="voxelOutput" class="result-box">
+            <p><strong>Voxel Coordinates</strong></p>
+            <p>Enter data to see output.</p>
+        </div>
     </div>
 
     <script>
@@ -150,6 +156,7 @@
 
         function process() {
             const type = document.getElementById('inputType').value;
+            const galaxy = parseInt(document.getElementById('galaxyIndex').value);
             let inputVal = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
             let p, sss, xxx, yy, zzz;
 
@@ -190,6 +197,13 @@
                 const gx = (xxx + 2047) & 0xFFFF;
                 const gy = (yy + 127) & 0xFFFF;
                 const gz = (zzz + 2047) & 0xFFFF;
+                
+                // Calculate Universal Address
+                const galaxyHex = galaxy.toString(16).padStart(2, '0');
+                const yHex = (yy & 0xFF).toString(16).padStart(2, '0');
+                const zHex = (zzz & 0xFFF).toString(16).padStart(3, '0');
+                const xHex = (xxx & 0xFFF).toString(16).padStart(3, '0');
+                const universalAddr = `${galaxyHex}${inputVal[0]}${inputVal.substring(1,4)}${yHex}${zHex}${xHex}`;
 
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
                 const status = isCore ? "Core Void Detected" : "Standard Space";
@@ -198,6 +212,7 @@
                     ${renderGlyphs(inputVal)}
                     <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
                     <p><strong>Portal Code:</strong> ${inputVal.toUpperCase()}</p>
+                    <p><strong>Universal Address:</strong> 0x${universalAddr.toUpperCase()}</p>
                     <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
                 `;
                 
