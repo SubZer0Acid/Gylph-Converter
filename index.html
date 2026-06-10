@@ -164,6 +164,7 @@
             if (!lastResult) { alert("Please run 'Convert' first!"); return; }
             let output = [];
             for (let i = 0; i <= 4095; i++) {
+                let formattedIndex = i.toString().padStart(4, '0');
                 output.push({ 
                     "UniverseAddress": { 
                         "RealityIndex": lastResult.galaxy, 
@@ -171,14 +172,14 @@
                             "VoxelX": lastResult.xxx, 
                             "VoxelY": lastResult.yy, 
                             "VoxelZ": lastResult.zzz, 
-                            "SolarSystemIndex": i, 
+                            "SolarSystemIndex": formattedIndex, 
                             "PlanetIndex": lastResult.p 
                         } 
                     }, 
                     "Position": [1.0, 1.0, 1.0], 
                     "Facing": [1.0, 1.0, 1.0], 
                     "TeleporterType": "SpacestationFixPosition", 
-                    "Name": i.toString().padStart(4, '0'), 
+                    "Name": formattedIndex, 
                     "CalcWarpOffset": false, 
                     "IsFeatured": false 
                 });
