@@ -40,10 +40,25 @@
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #555; }
         .result-glyph { width: 30px; margin: 2px; border: 1px solid #777; }
         
-        #output { border-top: 2px solid #555; margin-top: 1rem; padding-top: 1rem; color: #fff; text-shadow: 1px 1px 2px #000; }
+        #output { 
+            max-width: 800px; 
+            margin: 1rem auto; 
+            display: flex; 
+            gap: 15px;
+            justify-content: center;
+        }
+        .output-panel {
+            background: rgba(0,0,0,0.8); 
+            padding: 15px; 
+            border-radius: 8px; 
+            border: 1px solid #444;
+            flex: 1;
+        }
+        
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; margin-top: 10px; }
+        pre { font-size: 0.85rem; overflow-x: auto; }
     </style>
 </head>
 <body>
@@ -78,7 +93,7 @@
         <button onclick="process()" style="background:#28a745; color:white; border:none; padding:10px; width:100%; cursor:pointer; margin-top:10px;">Convert</button>
     </div>
 
-    <div id="output" style="max-width: 600px; margin: 1rem auto;"></div>
+    <div id="output"></div>
 
     <script>
         let currentSeq = Array(12).fill('-');
@@ -176,20 +191,28 @@
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
                 const status = isCore ? "Core Void Detected" : "Standard Space";
 
+                const universeJson = {
+                    "RealityIndex": p,
+                    "GalacticAddress": {
+                        "VoxelX": xxx,
+                        "VoxelY": yy,
+                        "VoxelZ": zzz,
+                        "SolarSystemIndex": sss,
+                        "PlanetIndex": p
+                    }
+                };
+
                 document.getElementById('output').innerHTML = `
-                    <div style="background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444; font-family: monospace; white-space: pre-wrap;">
+                    <div class="output-panel">
                         ${renderGlyphs(inputVal)}
-                        <p><strong>Status:</strong> ${status}</p>
-                        <p><strong>"UniverseAddress":{</strong></p>
-                        <p style="margin-left: 20px;">"RealityIndex": ${p},</p>
-                        <p style="margin-left: 20px;">"GalacticAddress":{</p>
-                        <p style="margin-left: 40px;">"VoxelX": ${xxx},</p>
-                        <p style="margin-left: 40px;">"VoxelY": ${yy},</p>
-                        <p style="margin-left: 40px;">"VoxelZ": ${zzz},</p>
-                        <p style="margin-left: 40px;">"SolarSystemIndex": ${sss},</p>
-                        <p style="margin-left: 40px;">"PlanetIndex": ${p}</p>
-                        <p style="margin-left: 20px;">}</p>
-                        <p><strong>}</strong></p>
+                        <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
+                        <p><strong>Voxel:</strong> X:${xxx}, Y:${yy}, Z:${zzz}</p>
+                        <p><strong>Portal Code:</strong> ${inputVal.toUpperCase()}</p>
+                        <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
+                    </div>
+                    <div class="output-panel">
+                        <strong>Universe Address Data:</strong>
+                        <pre>${JSON.stringify(universeJson, null, 4)}</pre>
                     </div>
                 `;
             } catch(e) { alert("Invalid input format!"); }
