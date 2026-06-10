@@ -40,13 +40,13 @@
         .glyph-btn { width: 40px; cursor: pointer; margin: 2px; border: 1px solid #555; }
         .result-glyph { width: 30px; margin: 2px; border: 1px solid #777; }
         
-        /* Flexbox for side-by-side output */
         .results-container { 
             display: flex; 
             gap: 20px; 
             max-width: 800px; 
             margin: 1rem auto; 
             justify-content: center;
+            align-items: flex-start;
         }
         .result-box { 
             background: rgba(0,0,0,0.8); 
@@ -54,11 +54,16 @@
             border-radius: 8px; 
             border: 1px solid #444; 
             flex: 1;
+            white-space: pre-wrap;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
         }
         
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; margin-top: 10px; }
+        .footer-images { text-align: center; margin-top: 30px; }
+        .footer-image { width: 300px; margin: 10px; border: 1px solid #555; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -98,10 +103,16 @@
 
     <div class="results-container">
         <div id="output" class="result-box"></div>
-        <div id="voxelOutput" class="result-box">
-            <p><strong>Voxel Coordinates</strong></p>
-            <p>Enter data to see output.</p>
-        </div>
+        <div id="voxelOutput" class="result-box">Voxel data will appear here.</div>
+    </div>
+
+    <div class="footer-images">
+        <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank">
+            <img src="img/CORE_VOID_MAP_256_v7.webp" class="footer-image" alt="Core Void Map">
+        </a>
+        <a href="img/Glyphs.jpg" target="_blank">
+            <img src="img/Glyphs.jpg" class="footer-image" alt="Glyph Decoder">
+        </a>
     </div>
 
     <script>
@@ -197,14 +208,6 @@
                 const gx = (xxx + 2047) & 0xFFFF;
                 const gy = (yy + 127) & 0xFFFF;
                 const gz = (zzz + 2047) & 0xFFFF;
-                
-                // Calculate Universal Address
-                const galaxyHex = galaxy.toString(16).padStart(2, '0');
-                const yHex = (yy & 0xFF).toString(16).padStart(2, '0');
-                const zHex = (zzz & 0xFFF).toString(16).padStart(3, '0');
-                const xHex = (xxx & 0xFFF).toString(16).padStart(3, '0');
-                const universalAddr = `${galaxyHex}${inputVal[0]}${inputVal.substring(1,4)}${yHex}${zHex}${xHex}`;
-
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
                 const status = isCore ? "Core Void Detected" : "Standard Space";
 
@@ -212,16 +215,22 @@
                     ${renderGlyphs(inputVal)}
                     <p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p>
                     <p><strong>Portal Code:</strong> ${inputVal.toUpperCase()}</p>
-                    <p><strong>Universal Address:</strong> 0x${universalAddr.toUpperCase()}</p>
                     <p class="${isCore ? 'warning' : ''}"><strong>Status:</strong> ${status}</p>
                 `;
-                
-                document.getElementById('voxelOutput').innerHTML = `
-                    <p><strong>Voxel Coordinates</strong></p>
-                    <p><strong>X:</strong> ${xxx}</p>
-                    <p><strong>Y:</strong> ${yy}</p>
-                    <p><strong>Z:</strong> ${zzz}</p>
-                `;
+
+                const jsonOutput = {
+                    "UniverseAddress": {
+                        "RealityIndex": galaxy,
+                        "GalacticAddress": {
+                            "VoxelX": xxx,
+                            "VoxelY": yy,
+                            "VoxelZ": zzz,
+                            "SolarSystemIndex": sss,
+                            "PlanetIndex": p
+                        }
+                    }
+                };
+                document.getElementById('voxelOutput').innerText = JSON.stringify(jsonOutput, null, 4);
             } catch(e) { alert("Invalid input format!"); }
         }
         toggleInputs();
