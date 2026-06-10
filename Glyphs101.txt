@@ -1,0 +1,132 @@
+Portals 101:
+
+Using the small galaxy position graphic when in the galaxy map, X increases from left to right, Z from back to front, and Y from the bottom to top of the galaxy. Its dimensions are 4096 regions by 4096 regions (X and Z), and is 256 regions tall (Y). 
+Each Region is a cube, ~400x400x400LY in size.
+Galactic Coordinates use the format XXXX:YYYY:ZZZZ:STAR, and use hexadecimal numbers rather than base 10. Stars within each region are numbered, on average each Region contains 500-580 stars.
+
+Within each Region, there are roughly 4095 possible star positions, the game uses procedural generation to distribute the 500-600 stars among those points in each 
+The game begins counting at 0 instead of 1, so X and Z values can be anywhere in the range 0000-4096, in hex that translates to 0000-0FFE, Y values are 0-254, so 0000-00FE, and System Index begins at 0000 for Star #1.
+This site is a tool for converting galactic coordinates into ALL 5 Formats of Universal Addresses.
+
+Galactic coords X and Z values always begin with 0, and Y with 00 - the Portal Glyphs are just digits in hexadecimal, in order, so Sunset = 0, and the Triforce = F (hexadecimal for 15)
+The Portal Addresses rearrange those galactic coord values and drop the four 0's I mentioned, which is how 16 digit coords are reduced to a 12 digit Glyph Address.
+The STAR value will also always start with a 0, however Portal addresses target a specific planet, so that 0 is replaced rather than dropped.
+So Portal Addresses work thusly:
+1st Glyph = Planet within target system (0 and 1 both target Planet #1)
+Glyphs 2-4 = STAR value
+The remaining 8 Glyphs are coord values YY-ZZZ-XXX
+
+
+ (ssi.) = Star System Index 
+       (Glyphs 2–4) 
+These glyphs define the local system, within a larger region. Each region contains between 200 and 600 systems. 
+Yellow systems:Values range from (001) to (122)
+Coloured Systems: Starts at (123), Values stay below (250) 
+Purple Systems: Values range from (3E9) to (429) 
+
+ (yy.zzz.xxx) = Region Coordinates     
+      (Glyphs 5–12) 
+These are the most important glyphs.They determine your position in the galaxy and can place you within ~500 LY of any destination.
+Galactic height (core ↔ rim) = (yy) 
+Galactic North ↔ South = (zzz) 
+Galactic East ↔ West = (xxx) 
+(Y) will never be 80 
+(Z) will never be (800) 
+(X) will never be (800)
+
+Black holes: Black holes always generate at (079) on the (ssi) in a region.
+
+The Atlas interface: The Atlas interface always generates at (07A) on the index.
+
+The first Shadow star: The highest (ssi)  (3E8)  This "Glass star" cannot be reached from the galactic map, and will not display from the map. Instead the map will display that region's "Shadow star". You can reach it by traveling to another system and back, via the galactic map.
+
+The second Shadow star: The highest possible (ssi) for purple systems in any region:(429). It cannot be portaled to.
+
+
+XXXX:YYYY:ZZZZ:STAR for galactic adress
+
+Aproximate Ranges:
+
+X (West-East Axis):𝟎𝟕𝑭–𝟎𝟖𝟎  (2047) -> (2048)
+
+Y (Top-Bottom Axis):𝟎𝟕𝑬-𝟎𝟖𝟏 (2046) -> (129)
+
+Z (North-South Axis):𝟎𝟕𝑭-𝟎𝟖𝟎 (2047) -> (2048)
+
+
+absolute core region:07FF:007F:07FF:0001
+
+
+Full Galaxy Voxel Ranges For Teleport EndPoint Warping
+X:-2048 -> 2047
+Y:-128 -> 127
+Z:-2048 -> 2047
+STAR:0000 ->600
+
+
+Galaxy Core Void Voxel Ranges For Teleport EndPoint Warping
+X:
+Y:
+Z:
+STAR:0000 -> 4095
+
+
+
+Establisted ranges:
+
+
+X (West-East Axis):07FA	- 0802  (2042) ->  (2050
+
+Y (Top-Bottom Axis):007A - 0081 (122) ->    (129)
+
+Z (North-South Axis):07F2 - 0806 (2044) ->  (2054)
+
+
+Abosulute ranges
+
+07FA:007A:07FC:0001 (Lowest) -> (Highest) 0802:0081:0806:0001
+
+X (West-East Axis): 07FA	-	0802
+				   (2042)	   (2050)
+					
+Y (Top-Bottom Axis):007A	-	0081
+					(122)		(129)
+
+Z (North-South Axis):07FC	-	0806
+					(2044)		(2054)	
+
+
+
+*History*:
+Before glyphs, galactic coordinates were determined and mapped with signal boosters. A different Hexadecimal system displayed as: (ABCD:1234:5678:90AB) Early explorers used these coordinates to decode the Galactic grid and begin charting the galaxy even before HG's Galactic Atlas. Early explorers and communities such as Pahefu developed tools like the Pilgrim Star path:
+https://pahefu.github.io/pilgrimstarpath/ 
+to help explorers with wider galactic travel.
+
+After the addition of the Glyph portal system, communities immediately began extensive research such as ETARC “Solar system index research”. An early deep dive into the stars/systems index and an investigation of what are now called Phantom systems: 
+https://docs.google.com/spreadsheets/d/1pI91h0M9633f9nFk4yCb230GtYRRazQaFHEZfwuxNLs/edit?usp=drivesdk
+
+Glyph repositories and community exchanges:
+ETARCs early coordinate exchange thread:
+https://forums.atlas-65.com/t/galactic-coordinates-thread/2843/228?page=11 
+NMSCE coordinate exchange Reddit: 
+https://www.reddit.com/r/NMSCoordinateExchange/s/uusp9PA9Em 
+NMSCE website:
+https://nmsce.com/ 
+Fandom Civilized Space Euclid:
+https://nomanssky.fandom.com/wiki/Map:Civilized_Space_Euclid_Map
+
+Decoders/repository tools:
+The Portal repository:
+https://portalrepository.com/glyph-decoder/#google_vignette
+RogerHN's NMS portal decoder:
+https://nmsportals.github.io/
+
+Mapping/discovery systems:
+
+The AGT's NAVI: https://mhebrard.github.io/nms-browser/ 
+
+Voyager's Haven map: https://havenmap.online/ 
+
+Had.sh:
+https://glyphs.had.sh/galaxy/1
+
