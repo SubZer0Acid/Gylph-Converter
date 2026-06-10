@@ -15,7 +15,7 @@
         .result-box { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444; flex: 1; }
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
-        .warning { color: #ff6666; font-weight: bold; margin-top: 10px; }
+        .warning { color: #ff6666; font-weight: bold; }
         .footer-images { text-align: center; margin-top: 30px; }
         .footer-image { width: 300px; margin: 10px; border: 1px solid #555; cursor: pointer; }
     </style>
@@ -152,7 +152,9 @@
                 const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0');
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
                 
-                document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> ${isCore ? "Core Void Detected" : "Standard Space"}</p>`;
+                const statusText = isCore ? "Core Void Detected" : "Standard Space";
+                
+                document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${statusText}</span></p>`;
                 document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4);
             } catch(e) { alert("Invalid input format!"); }
         }
