@@ -6,7 +6,20 @@
     <style>
         body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
         
-        /* Hidden Trigger Button - 16% from left, 62% down */
+        /* New Hidden Info Button - Top Right */
+        #infoBtn { 
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            width: 30px; 
+            height: 30px; 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            z-index: 10000; 
+        }
+
+        /* Hidden Batch Trigger Button - 16% from left, 62% down */
         #hiddenBtn { 
             position: fixed; 
             top: 62%; 
@@ -36,6 +49,8 @@
 </head>
 <body>
 
+    <button id="infoBtn" onclick="openGlyphsInfo()"></button>
+
     <button id="hiddenBtn" onclick="generateBatch()"></button>
 
     <h1>No Man's Sky GlyphMaster</h1>
@@ -51,7 +66,7 @@
             <option value="2">Portal/Dec Address</option>
             <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
             <option value="4">12-Char Glyph Sequence</option>
-            <option value="5">Universal Address (0x...)</option>
+            <option value="5">Universal Address (0x...)</></option>
         </select>
 
         <div id="textInputArea">
@@ -82,6 +97,10 @@
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
 
+        function openGlyphsInfo() {
+            window.open("https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt", '_blank');
+        }
+
         function toggleInputs() {
             const type = document.getElementById('inputType').value;
             const textInputArea = document.getElementById('textInputArea');
@@ -107,7 +126,7 @@
             img.src = `img/glyphs/${char.toLowerCase()}.png`;
             img.className = 'glyph-btn';
             img.onclick = () => {
-                let idx = currentSeq.indexOf('-')
+                let idx = currentSeq.indexOf('-');
                 if(idx !== -1) {
                     currentSeq[idx] = char.toUpperCase();
                     document.getElementById('seqDisplay').innerText = currentSeq.join('');
