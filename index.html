@@ -18,7 +18,20 @@
         .results-container { display: flex; gap: 20px; max-width: 800px; margin: 1rem auto; justify-content: center; }
         .result-box { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444; flex: 1; }
         
-        .map-container { position: fixed; bottom: 10px; right: 10px; width: 300px; height: 250px; background: rgba(0,0,0,0.9); padding: 5px; border-radius: 8px; border: 1px solid #444; z-index: 9998; overflow: hidden; }
+        /* Updated Live Map Window (500x350) */
+        .map-container { 
+            position: fixed; 
+            bottom: 10px; 
+            right: 10px; 
+            width: 500px; 
+            height: 350px; 
+            background: rgba(0,0,0,0.9); 
+            padding: 5px; 
+            border-radius: 8px; 
+            border: 1px solid #444; 
+            z-index: 9998; 
+            overflow: hidden;
+        }
         
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
@@ -65,7 +78,7 @@
     </div>
 
     <div class="map-container">
-        <iframe src="https://havenmap.online/map/latest/" width="100%" height="100%" style="border:none;" title="Haven Cartographer"></iframe>
+        <iframe src="https://havenmap.online/map/latest" width="100%" height="100%" style="border:none;" title="Haven Cartographer"></iframe>
     </div>
 
     <div class="footer-images">
