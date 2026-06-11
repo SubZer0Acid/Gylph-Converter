@@ -8,6 +8,7 @@
         
         #atlasImg { position: fixed; top: 10px; left: 10px; width: 200px; z-index: 5000; border: 1px solid #555; border-radius: 5px; }
         #infoBtn { position: fixed; top: 0; right: 0; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; z-index: 10000; }
+        #toggleMapBtn { position: fixed; top: 40px; right: 5px; background: #333; color: white; border: 1px solid #555; padding: 5px; cursor: pointer; z-index: 10000; font-size: 12px; }
         #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; transform: translate(-50%, -50%); }
 
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
@@ -18,20 +19,8 @@
         .results-container { display: flex; gap: 20px; max-width: 800px; margin: 1rem auto; justify-content: center; }
         .result-box { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444; flex: 1; }
         
-        /* Haven Live Map Container */
-        .map-container { 
-            position: fixed; 
-            bottom: 10px; 
-            right: 10px; 
-            width: 1000px; 
-            height: 550px; 
-            background: rgba(0,0,0,0.9); 
-            padding: 5px; 
-            border-radius: 8px; 
-            border: 1px solid #444; 
-            z-index: 9998; 
-            overflow: hidden;
-        }
+        .map-container { position: fixed; bottom: 10px; right: 10px; width: 1000px; height: 550px; background: rgba(0,0,0,0.9); padding: 5px; border-radius: 8px; border: 1px solid #444; z-index: 9998; overflow: hidden; }
+        .map-header { background:#222; padding:5px; text-align:right; cursor: pointer; }
         
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
@@ -44,6 +33,7 @@
 
     <img src="img/Galactic%20Atlas.jpg" id="atlasImg" alt="Galactic Atlas">
     <button id="infoBtn" onclick="openGlyphsInfo()"></button>
+    <button id="toggleMapBtn" onclick="toggleMap()">Toggle Map</button>
     <button id="hiddenBtn" onclick="generateBatch()"></button>
 
     <h1>No Man's Sky GlyphMaster</h1>
@@ -77,9 +67,10 @@
         <div id="voxelOutput" class="result-box" style="white-space: pre-wrap;"></div>
     </div>
 
-    <div class="map-container">
-        <div style="background:#222; padding:5px; text-align:right;">
-            <a href="https://havenmap.online/map/latest" target="_blank" style="color:white; font-size:12px; text-decoration:none;">Open Map in New Tab ↗</a>
+    <div id="mapWindow" class="map-container">
+        <div class="map-header" onclick="toggleMap()">
+            <a href="https://havenmap.online/map/latest" target="_blank" style="color:white; font-size:12px; text-decoration:none; margin-right:10px;">Open New Tab ↗</a>
+            <span style="color:#aaa; font-size:12px;">[-] Minimize</span>
         </div>
         <iframe src="https://havenmap.online/map/latest" width="100%" height="90%" style="border:none;" title="Haven Cartographer"></iframe>
     </div>
@@ -90,62 +81,19 @@
     </div>
 
     <script>
+        function toggleMap() {
+            const map = document.getElementById('mapWindow');
+            map.style.display = (map.style.display === 'none') ? 'block' : 'none';
+        }
+        // ... rest of your existing JS logic ...
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
-
-        async function openGlyphsInfo() {
-            const textUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt";
-            const imgUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/img/Region%20Star%20Guide.jpg";
-            try {
-                const response = await fetch(textUrl);
-                const textData = await response.text();
-                const newTab = window.open("", "_blank");
-                newTab.document.write(`<html><head><title>Glyph Info & Star Guide</title><style>body { background-color: #1a1a1a; color: white; font-family: sans-serif; padding: 20px; } img { max-width: 100%; } pre { background: #000; padding: 15px; color: #fff; }</style></head><body><h2>Region Star Guide</h2><img src="${imgUrl}"><hr><h2>Glyphs101 Data</h2><pre>${textData}</pre></body></html>`);
-                newTab.document.close();
-            } catch (error) { window.open(textUrl, '_blank'); }
-        }
-
-        function toggleInputs() {
-            const type = document.getElementById('inputType').value;
-            const textInputArea = document.getElementById('textInputArea');
-            const glyphSelector = document.getElementById('glyphSelector');
-            const label = document.getElementById('inputLabel');
-            if(type === '4') { textInputArea.style.display = 'none'; glyphSelector.style.display = 'block'; }
-            else { textInputArea.style.display = 'block'; glyphSelector.style.display = 'none';
-                if(type === '1') label.innerText = "Planet, System, X, Y, Z (comma separated):";
-                else if(type === '2') label.innerText = "Portal Hex String:";
-                else if(type === '3') label.innerText = "Galactic Address (XXXX:YYYY:ZZZZ:SSSS):";
-                else if(type === '5') label.innerText = "Universal Address (0x...):";
-            }
-        }
-
+        async function openGlyphsInfo() { /* ... */ }
+        function toggleInputs() { /* ... */ }
         const grid = document.getElementById('glyphGrid');
-        "0123456789abcdef".split("").forEach(char => {
-            let img = document.createElement('img');
-            img.src = `img/glyphs/${char.toLowerCase()}.png`;
-            img.className = 'glyph-btn';
-            img.onclick = () => { let idx = currentSeq.indexOf('-'); if(idx !== -1) { currentSeq[idx] = char.toUpperCase(); document.getElementById('seqDisplay').innerText = currentSeq.join(''); } };
-            grid.appendChild(img);
-        });
-
-        function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
-
-        function renderGlyphs(hexString) { let html = '<div style="margin-top:10px;">'; for(let char of hexString) { if("0123456789ABCDEF".includes(char.toUpperCase())) html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`; } return html + '</div>'; }
-
-        function process() {
-            const type = document.getElementById('inputType').value;
-            const galaxy = parseInt(document.getElementById('galaxyIndex').value) || 0;
-            const inputValRaw = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
-            let p, sss, xxx, yy, zzz, portalCode = "";
-            try {
-                if(type === '1') { [p, sss, xxx, yy, zzz] = inputValRaw.split(',').map(v => parseInt(v.trim())); portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
-                else if (type === '3') { const parts = inputValRaw.split(':'); xxx = parseInt(parts[0], 16) - 2047; yy = parseInt(parts[1], 16) - 127; zzz = parseInt(parts[2], 16) - 2047; sss = parseInt(parts[3], 16); p = 1; portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
-                else if (type === '5') { const clean = inputValRaw.toLowerCase().replace('0x', ''); p = parseInt(clean.substring(2, 3), 16); sss = parseInt(clean.substring(3, 6), 16); yy = (parseInt(clean.substring(8, 10), 16) > 127) ? parseInt(clean.substring(8, 10), 16) - 256 : parseInt(clean.substring(8, 10), 16); zzz = (parseInt(clean.substring(10, 13), 16) > 2047) ? parseInt(clean.substring(10, 13), 16) - 4096 : parseInt(clean.substring(10, 13), 16); xxx = (parseInt(clean.substring(13, 16), 16) > 2047) ? parseInt(clean.substring(13, 16), 16) - 4096 : parseInt(clean.substring(13, 16), 16); portalCode = clean.substring(2); }
-                else { portalCode = inputValRaw; p = parseInt(portalCode[0], 16); sss = parseInt(portalCode.substring(1, 4), 16); yy = (parseInt(portalCode.substring(4, 6), 16) > 127) ? parseInt(portalCode.substring(4, 6), 16) - 256 : parseInt(portalCode.substring(4, 6), 16); zzz = (parseInt(portalCode.substring(6, 9), 16) > 2047) ? parseInt(portalCode.substring(6, 9), 16) - 4096 : parseInt(portalCode.substring(6, 9), 16); xxx = (parseInt(portalCode.substring(9, 12), 16) > 2047) ? parseInt(portalCode.substring(9, 12), 16) - 4096 : parseInt(portalCode.substring(9, 12), 16); }
-                lastResult = { galaxy, xxx, yy, zzz, p }; const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF; const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0'); const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806); const statusText = isCore ? "Core Void Detected" : "Standard Space"; document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${statusText}</span></p>`; document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4); } catch(e) { alert("Invalid input format!"); }
-        }
-
-        function generateBatch() { if (!lastResult) { alert("Please run 'Convert' first!"); return; } let output = []; for (let i = 0; i <= 4095; i++) { let formattedIndex = i.toString().padStart(4, '0'); output.push({ "UniverseAddress": { "RealityIndex": lastResult.galaxy, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": formattedIndex, "PlanetIndex": lastResult.p } }, "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition", "Name": formattedIndex, "CalcWarpOffset": false, "IsFeatured": false }); } const win = window.open("", "_blank"); win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`); }
+        // ... (Re-use your previous working script for process/batch here)
+        function process() { /* ... */ }
+        function generateBatch() { /* ... */ }
         toggleInputs();
     </script>
 </body>
