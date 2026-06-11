@@ -97,31 +97,40 @@
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
 
-        // Opens a new tab and fetches text data to display alongside the image
+        // Opens a new tab and fetches data for display
         async function openGlyphsInfo() {
             const textUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt";
             const imgUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/img/Region%20Star%20Guide.jpg";
             
             try {
                 const response = await fetch(textUrl);
+                if (!response.ok) throw new Error('Network error');
                 const textData = await response.text();
                 
                 const newTab = window.open("", "_blank");
                 newTab.document.write(`
                     <html>
-                        <head><title>Glyph Info & Star Guide</title></head>
-                        <body style="background-color: #1a1a1a; color: white; font-family: sans-serif; padding: 20px; line-height: 1.5;">
+                        <head>
+                            <title>Glyph Info & Star Guide</title>
+                            <style>
+                                body { background-color: #1a1a1a; color: white; font-family: sans-serif; padding: 20px; line-height: 1.5; }
+                                img { max-width: 100%; border: 1px solid #555; display: block; margin-bottom: 20px; }
+                                pre { background: #000; padding: 15px; border-radius: 5px; border: 1px solid #444; white-space: pre-wrap; word-wrap: break-word; color: #fff; }
+                            </style>
+                        </head>
+                        <body>
                             <h2>Region Star Guide</h2>
-                            <img src="${imgUrl}" style="max-width: 100%; border: 1px solid #555;">
-                            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #444;">
+                            <img src="${imgUrl}" alt="Region Star Guide">
+                            <hr>
                             <h2>Glyphs101 Data</h2>
-                            <pre style="background: #000; padding: 15px; border-radius: 5px; border: 1px solid #444; white-space: pre-wrap; word-wrap: break-word;">${textData}</pre>
+                            <pre>${textData}</pre>
                         </body>
                     </html>
                 `);
+                newTab.document.close();
             } catch (error) {
                 console.error("Error loading info:", error);
-                alert("Could not load the information. Please check your GitHub file path.");
+                window.open(textUrl, '_blank');
             }
         }
 
