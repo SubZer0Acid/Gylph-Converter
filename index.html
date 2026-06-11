@@ -45,7 +45,7 @@
         
         /* Hidden Buttons */
         #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
-        #realityBatchBtn { position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
+        #realityBatchBtn { position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; border: none; cursor: default; z-index: 9999; }
 
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
         input[type="text"], input[type="number"], select { background-color: #000000; color: #ffffff; border: 1px solid #555; width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
@@ -61,8 +61,6 @@
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; }
-        .footer-images { text-align: center; margin-top: 30px; }
-        .footer-image { width: 300px; margin: 10px; border: 1px solid #555; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -104,7 +102,7 @@
         <div id="voxelOutput" class="result-box" style="white-space: pre-wrap;"></div>
     </div>
 
-    <div id="mapWindow" class="map-container">
+    <div id="mapWindow" class="map-container" style="display:none;">
         <div class="map-header" onclick="toggleMap()">
             <a href="https://havenmap.online/map/latest" target="_blank" style="color:white; font-size:12px; text-decoration:none; margin-right:10px;">Open New Tab ↗</a>
             <span style="color:#aaa; font-size:12px;">[-] Minimize</span>
@@ -113,9 +111,15 @@
     </div>
 
     <div id="cookie-banner" style="position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.9); color:white; padding:15px; text-align:center; border-top:1px solid #444; z-index:10001;">
-        <p style="margin:0 0 10px 0; font-size:14px;">We use cookies to improve your experience and analyze site traffic. By clicking "Accept", you agree to our use of these tools.</p>
+        <p style="margin:0 0 10px 0; font-size:14px;">We use Google Analytics and a visitor counter to improve your experience. By clicking "Accept", you agree to our use of these tools.</p>
         <button onclick="grantConsent()" style="padding:8px 20px; background:#28a745; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Accept</button>
     </div>
+
+    <footer style="text-align: center; padding: 20px 0 80px 0; color: #888; background: rgba(0,0,0,0.5);">
+        <p style="font-size: 12px; margin-bottom: 5px;">Total Visitors:</p>
+        <script src="https://widgets.embeddable.co/sdk/latest/embeddable.js" defer></script>
+        <div class="embeddable-RwlTqNKZIx"></div>
+    </footer>
 
     <script>
         function toggleMap() {
