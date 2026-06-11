@@ -7,19 +7,15 @@
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-
-      // Initialize consent as denied by default
       gtag('consent', 'default', {
         'ad_storage': 'denied',
         'analytics_storage': 'denied',
         'ad_user_data': 'denied',
         'ad_personalization': 'denied'
       });
-
       gtag('js', new Date());
       gtag('config', 'G-1F8W41MW69');
 
-      // Function to grant consent
       function grantConsent() {
         gtag('consent', 'update', {
           'ad_storage': 'granted',
@@ -31,11 +27,10 @@
         document.getElementById('cookie-banner').style.display = 'none';
       }
 
-      // Check if consent was already given on page load
       window.onload = function() {
         if (localStorage.getItem('consentGiven') === 'true') {
             document.getElementById('cookie-banner').style.display = 'none';
-            grantConsent(); // Re-apply consent
+            grantConsent();
         }
       };
     </script>
@@ -47,7 +42,9 @@
         #atlasImg { position: fixed; top: 10px; left: 10px; width: 200px; z-index: 5000; border: 1px solid #555; border-radius: 5px; }
         #infoBtn { position: fixed; top: 0; right: 0; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; z-index: 10000; }
         #toggleMapBtn { position: fixed; top: 40px; right: 5px; background: #333; color: white; border: 1px solid #555; padding: 5px; cursor: pointer; z-index: 10000; font-size: 12px; }
-        #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; transform: translate(-50%, -50%); }
+        /* Hidden Buttons */
+        #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
+        #realityBatchBtn { position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
 
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
         input[type="text"], input[type="number"], select { background-color: #000000; color: #ffffff; border: 1px solid #555; width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
@@ -73,6 +70,7 @@
     <button id="infoBtn" onclick="openGlyphsInfo()"></button>
     <button id="toggleMapBtn" onclick="toggleMap()">Toggle Map</button>
     <button id="hiddenBtn" onclick="generateBatch()"></button>
+    <button id="realityBatchBtn" onclick="generateRealityBatch()"></button>
 
     <h1>No Man's Sky GlyphMaster</h1>
     <div class="signature">Created By SubZer0Acid<br>Leader Of The Phantom-Zer0 Civ</div>
@@ -111,11 +109,6 @@
             <span style="color:#aaa; font-size:12px;">[-] Minimize</span>
         </div>
         <iframe src="https://havenmap.online/map/latest" width="100%" height="90%" style="border:none;" title="Haven Cartographer"></iframe>
-    </div>
-
-    <div class="footer-images">
-        <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank"><img src="img/CORE_VOID_MAP_256_v7.webp" class="footer-image" alt="Core Void Map"></a>
-        <a href="img/Glyphs.jpg" target="_blank"><img src="img/Glyphs.jpg" class="footer-image" alt="Glyph Decoder"></a>
     </div>
 
     <div id="cookie-banner" style="position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.9); color:white; padding:15px; text-align:center; border-top:1px solid #444; z-index:10001;">
@@ -169,8 +162,6 @@
 
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
 
-        function renderGlyphs(hexString) { let html = '<div style="margin-top:10px;">'; for(let char of hexString) { if("0123456789ABCDEF".includes(char.toUpperCase())) html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`; } return html + '</div>'; }
-
         function process() {
             const type = document.getElementById('inputType').value;
             const galaxy = parseInt(document.getElementById('galaxyIndex').value) || 0;
@@ -181,10 +172,19 @@
                 else if (type === '3') { const parts = inputValRaw.split(':'); xxx = parseInt(parts[0], 16) - 2047; yy = parseInt(parts[1], 16) - 127; zzz = parseInt(parts[2], 16) - 2047; sss = parseInt(parts[3], 16); p = 1; portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
                 else if (type === '5') { const clean = inputValRaw.toLowerCase().replace('0x', ''); p = parseInt(clean.substring(2, 3), 16); sss = parseInt(clean.substring(3, 6), 16); yy = (parseInt(clean.substring(8, 10), 16) > 127) ? parseInt(clean.substring(8, 10), 16) - 256 : parseInt(clean.substring(8, 10), 16); zzz = (parseInt(clean.substring(10, 13), 16) > 2047) ? parseInt(clean.substring(10, 13), 16) - 4096 : parseInt(clean.substring(10, 13), 16); xxx = (parseInt(clean.substring(13, 16), 16) > 2047) ? parseInt(clean.substring(13, 16), 16) - 4096 : parseInt(clean.substring(13, 16), 16); portalCode = clean.substring(2); }
                 else { portalCode = inputValRaw; p = parseInt(portalCode[0], 16); sss = parseInt(portalCode.substring(1, 4), 16); yy = (parseInt(portalCode.substring(4, 6), 16) > 127) ? parseInt(portalCode.substring(4, 6), 16) - 256 : parseInt(portalCode.substring(4, 6), 16); zzz = (parseInt(portalCode.substring(6, 9), 16) > 2047) ? parseInt(portalCode.substring(6, 9), 16) - 4096 : parseInt(portalCode.substring(6, 9), 16); xxx = (parseInt(portalCode.substring(9, 12), 16) > 2047) ? parseInt(portalCode.substring(9, 12), 16) - 4096 : parseInt(portalCode.substring(9, 12), 16); }
-                lastResult = { galaxy, xxx, yy, zzz, p }; const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF; const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0'); const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806); const statusText = isCore ? "Core Void Detected" : "Standard Space"; document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${statusText}</span></p>`; document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4); } catch(e) { alert("Invalid input format!"); }
+                lastResult = { galaxy, xxx, yy, zzz, p };
+                const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF; 
+                const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0');
+                const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
+                document.getElementById('output').innerHTML = `<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${isCore ? "Core Void Detected" : "Standard Space"}</span></p>`;
+                document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4);
+            } catch(e) { alert("Invalid input format!"); }
         }
 
         function generateBatch() { if (!lastResult) { alert("Please run 'Convert' first!"); return; } let output = []; for (let i = 0; i <= 4095; i++) { let formattedIndex = i.toString().padStart(4, '0'); output.push({ "UniverseAddress": { "RealityIndex": lastResult.galaxy, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": formattedIndex, "PlanetIndex": lastResult.p } }, "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition", "Name": formattedIndex, "CalcWarpOffset": false, "IsFeatured": false }); } const win = window.open("", "_blank"); win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`); }
+        
+        function generateRealityBatch() { if (!lastResult) { alert("Please run 'Convert' first!"); return; } let output = []; for (let i = 0; i <= 255; i++) { output.push({ "UniverseAddress": { "RealityIndex": i, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": lastResult.sss || 0, "PlanetIndex": lastResult.p } }, "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition", "Name": i.toString().padStart(4, '0'), "CalcWarpOffset": false, "IsFeatured": false }); } const win = window.open("", "_blank"); win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`); }
+        
         toggleInputs();
     </script>
 </body>
