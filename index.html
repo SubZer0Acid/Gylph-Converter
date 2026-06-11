@@ -66,7 +66,7 @@
             <option value="2">Portal/Dec Address</option>
             <option value="3">Galactic Address (XXXX:YYYY:ZZZZ:SSSS)</option>
             <option value="4">12-Char Glyph Sequence</option>
-            <option value="5">Universal Address (0x...)</></option>
+            <option value="5">Universal Address (0x...)</option>
         </select>
 
         <div id="textInputArea">
@@ -97,8 +97,24 @@
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
 
+        // Opens a new tab with the Image and the Text File
         function openGlyphsInfo() {
-            window.open("https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt", '_blank');
+            const textUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt";
+            const imgUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/img/Region%20Star%20Guide.jpg";
+            
+            const newTab = window.open("", "_blank");
+            newTab.document.write(`
+                <html>
+                    <head><title>Glyph Info & Star Guide</title></head>
+                    <body style="background-color: #1a1a1a; color: white; font-family: sans-serif; padding: 20px;">
+                        <h2>Region Star Guide</h2>
+                        <img src="${imgUrl}" style="max-width: 100%; border: 1px solid #555;">
+                        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #444;">
+                        <h2>Glyphs101 Data</h2>
+                        <iframe src="${textUrl}" style="width: 100%; height: 600px; background: white; border: none; color: black;"></iframe>
+                    </body>
+                </html>
+            `);
         }
 
         function toggleInputs() {
