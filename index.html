@@ -6,6 +6,17 @@
     <style>
         body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
         
+        /* Top Left Galactic Atlas Image */
+        #atlasImg {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: 200px;
+            z-index: 5000;
+            border: 1px solid #555;
+            border-radius: 5px;
+        }
+
         /* New Hidden Info Button - Top Right */
         #infoBtn { 
             position: fixed; 
@@ -48,6 +59,8 @@
     </style>
 </head>
 <body>
+
+    <img src="img/Galactic%20Atlas.jpg" id="atlasImg" alt="Galactic Atlas">
 
     <button id="infoBtn" onclick="openGlyphsInfo()"></button>
 
@@ -97,16 +110,13 @@
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
 
-        // Opens a new tab and fetches data for display
         async function openGlyphsInfo() {
             const textUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt";
             const imgUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/img/Region%20Star%20Guide.jpg";
             
             try {
                 const response = await fetch(textUrl);
-                if (!response.ok) throw new Error('Network error');
                 const textData = await response.text();
-                
                 const newTab = window.open("", "_blank");
                 newTab.document.write(`
                     <html>
@@ -128,10 +138,7 @@
                     </html>
                 `);
                 newTab.document.close();
-            } catch (error) {
-                console.error("Error loading info:", error);
-                window.open(textUrl, '_blank');
-            }
+            } catch (error) { window.open(textUrl, '_blank'); }
         }
 
         function toggleInputs() {
@@ -139,13 +146,8 @@
             const textInputArea = document.getElementById('textInputArea');
             const glyphSelector = document.getElementById('glyphSelector');
             const label = document.getElementById('inputLabel');
-            
-            if(type === '4') {
-                textInputArea.style.display = 'none';
-                glyphSelector.style.display = 'block';
-            } else {
-                textInputArea.style.display = 'block';
-                glyphSelector.style.display = 'none';
+            if(type === '4') { textInputArea.style.display = 'none'; glyphSelector.style.display = 'block'; }
+            else { textInputArea.style.display = 'block'; glyphSelector.style.display = 'none'; 
                 if(type === '1') label.innerText = "Planet, System, X, Y, Z (comma separated):";
                 else if(type === '2') label.innerText = "Portal Hex String:";
                 else if(type === '3') label.innerText = "Galactic Address (XXXX:YYYY:ZZZZ:SSSS):";
@@ -160,10 +162,7 @@
             img.className = 'glyph-btn';
             img.onclick = () => {
                 let idx = currentSeq.indexOf('-');
-                if(idx !== -1) {
-                    currentSeq[idx] = char.toUpperCase();
-                    document.getElementById('seqDisplay').innerText = currentSeq.join('');
-                }
+                if(idx !== -1) { currentSeq[idx] = char.toUpperCase(); document.getElementById('seqDisplay').innerText = currentSeq.join(''); }
             };
             grid.appendChild(img);
         });
@@ -173,9 +172,7 @@
         function renderGlyphs(hexString) {
             let html = '<div style="margin-top:10px;">';
             for(let char of hexString) {
-                if("0123456789ABCDEF".includes(char.toUpperCase())) {
-                    html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`;
-                }
+                if("0123456789ABCDEF".includes(char.toUpperCase())) html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`;
             }
             html += '</div>';
             return html;
@@ -185,44 +182,13 @@
             const type = document.getElementById('inputType').value;
             const galaxy = parseInt(document.getElementById('galaxyIndex').value) || 0;
             const inputValRaw = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
-            
-            let p, sss, xxx, yy, zzz;
-            let portalCode = "";
-
+            let p, sss, xxx, yy, zzz, portalCode = "";
             try {
-                if(type === '1') {
-                    [p, sss, xxx, yy, zzz] = inputValRaw.split(',').map(v => parseInt(v.trim()));
-                    portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
-                } else if (type === '3') {
-                    const parts = inputValRaw.split(':');
-                    xxx = parseInt(parts[0], 16) - 2047; yy = parseInt(parts[1], 16) - 127; zzz = parseInt(parts[2], 16) - 2047; sss = parseInt(parts[3], 16);
-                    p = 1;
-                    portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`;
-                } else if (type === '5') {
-                    const clean = inputValRaw.toLowerCase().replace('0x', '');
-                    p = parseInt(clean.substring(2, 3), 16); sss = parseInt(clean.substring(3, 6), 16);
-                    yy = (parseInt(clean.substring(8, 10), 16) > 127) ? parseInt(clean.substring(8, 10), 16) - 256 : parseInt(clean.substring(8, 10), 16);
-                    zzz = (parseInt(clean.substring(10, 13), 16) > 2047) ? parseInt(clean.substring(10, 13), 16) - 4096 : parseInt(clean.substring(10, 13), 16);
-                    xxx = (parseInt(clean.substring(13, 16), 16) > 2047) ? parseInt(clean.substring(13, 16), 16) - 4096 : parseInt(clean.substring(13, 16), 16);
-                    portalCode = clean.substring(2);
-                } else {
-                    portalCode = inputValRaw;
-                    p = parseInt(portalCode[0], 16); sss = parseInt(portalCode.substring(1, 4), 16);
-                    yy = (parseInt(portalCode.substring(4, 6), 16) > 127) ? parseInt(portalCode.substring(4, 6), 16) - 256 : parseInt(portalCode.substring(4, 6), 16);
-                    zzz = (parseInt(portalCode.substring(6, 9), 16) > 2047) ? parseInt(portalCode.substring(6, 9), 16) - 4096 : parseInt(portalCode.substring(6, 9), 16);
-                    xxx = (parseInt(portalCode.substring(9, 12), 16) > 2047) ? parseInt(portalCode.substring(9, 12), 16) - 4096 : parseInt(portalCode.substring(9, 12), 16);
-                }
-
-                lastResult = { galaxy, xxx, yy, zzz, p };
-                const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF;
-                const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0');
-                const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
-                
-                const statusText = isCore ? "Core Void Detected" : "Standard Space";
-                
-                document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${statusText}</span></p>`;
-                document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4);
-            } catch(e) { alert("Invalid input format!"); }
+                if(type === '1') { [p, sss, xxx, yy, zzz] = inputValRaw.split(',').map(v => parseInt(v.trim())); portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
+                else if (type === '3') { const parts = inputValRaw.split(':'); xxx = parseInt(parts[0], 16) - 2047; yy = parseInt(parts[1], 16) - 127; zzz = parseInt(parts[2], 16) - 2047; sss = parseInt(parts[3], 16); p = 1; portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
+                else if (type === '5') { const clean = inputValRaw.toLowerCase().replace('0x', ''); p = parseInt(clean.substring(2, 3), 16); sss = parseInt(clean.substring(3, 6), 16); yy = (parseInt(clean.substring(8, 10), 16) > 127) ? parseInt(clean.substring(8, 10), 16) - 256 : parseInt(clean.substring(8, 10), 16); zzz = (parseInt(clean.substring(10, 13), 16) > 2047) ? parseInt(clean.substring(10, 13), 16) - 4096 : parseInt(clean.substring(10, 13), 16); xxx = (parseInt(clean.substring(13, 16), 16) > 2047) ? parseInt(clean.substring(13, 16), 16) - 4096 : parseInt(clean.substring(13, 16), 16); portalCode = clean.substring(2); }
+                else { portalCode = inputValRaw; p = parseInt(portalCode[0], 16); sss = parseInt(portalCode.substring(1, 4), 16); yy = (parseInt(portalCode.substring(4, 6), 16) > 127) ? parseInt(portalCode.substring(4, 6), 16) - 256 : parseInt(portalCode.substring(4, 6), 16); zzz = (parseInt(portalCode.substring(6, 9), 16) > 2047) ? parseInt(portalCode.substring(6, 9), 16) - 4096 : parseInt(portalCode.substring(6, 9), 16); xxx = (parseInt(portalCode.substring(9, 12), 16) > 2047) ? parseInt(portalCode.substring(9, 12), 16) - 4096 : parseInt(portalCode.substring(9, 12), 16); }
+                lastResult = { galaxy, xxx, yy, zzz, p }; const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF; const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0'); const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806); const statusText = isCore ? "Core Void Detected" : "Standard Space"; document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${statusText}</span></p>`; document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4); } catch(e) { alert("Invalid input format!"); }
         }
 
         function generateBatch() {
@@ -230,27 +196,9 @@
             let output = [];
             for (let i = 0; i <= 4095; i++) {
                 let formattedIndex = i.toString().padStart(4, '0');
-                output.push({ 
-                    "UniverseAddress": { 
-                        "RealityIndex": lastResult.galaxy, 
-                        "GalacticAddress": { 
-                            "VoxelX": lastResult.xxx, 
-                            "VoxelY": lastResult.yy, 
-                            "VoxelZ": lastResult.zzz, 
-                            "SolarSystemIndex": formattedIndex, 
-                            "PlanetIndex": lastResult.p 
-                        } 
-                    }, 
-                    "Position": [1.0, 1.0, 1.0], 
-                    "Facing": [1.0, 1.0, 1.0], 
-                    "TeleporterType": "SpacestationFixPosition", 
-                    "Name": formattedIndex, 
-                    "CalcWarpOffset": false, 
-                    "IsFeatured": false 
-                });
+                output.push({ "UniverseAddress": { "RealityIndex": lastResult.galaxy, "GalacticAddress": { "VoxelX": lastResult.xxx, "VoxelY": lastResult.yy, "VoxelZ": lastResult.zzz, "SolarSystemIndex": formattedIndex, "PlanetIndex": lastResult.p } }, "Position": [1.0, 1.0, 1.0], "Facing": [1.0, 1.0, 1.0], "TeleporterType": "SpacestationFixPosition", "Name": formattedIndex, "CalcWarpOffset": false, "IsFeatured": false });
             }
-            const win = window.open("", "_blank");
-            win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`);
+            const win = window.open("", "_blank"); win.document.write(`<pre>${JSON.stringify(output, null, 4)}</pre>`);
         }
         toggleInputs();
     </script>
