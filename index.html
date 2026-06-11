@@ -42,6 +42,7 @@
         #atlasImg { position: fixed; top: 10px; left: 10px; width: 200px; z-index: 5000; border: 1px solid #555; border-radius: 5px; }
         #infoBtn { position: fixed; top: 0; right: 0; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; z-index: 10000; }
         #toggleMapBtn { position: fixed; top: 40px; right: 5px; background: #333; color: white; border: 1px solid #555; padding: 5px; cursor: pointer; z-index: 10000; font-size: 12px; }
+        
         /* Hidden Buttons */
         #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
         #realityBatchBtn { position: fixed; bottom: 10px; left: 10px; width: 20px; height: 20px; background: transparent; border: none; cursor: pointer; z-index: 9999; }
@@ -161,6 +162,7 @@
         });
 
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
+        function renderGlyphs(hexString) { let html = '<div style="margin-top:10px;">'; for(let char of hexString) { if("0123456789ABCDEF".includes(char.toUpperCase())) html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`; } return html + '</div>'; }
 
         function process() {
             const type = document.getElementById('inputType').value;
@@ -172,11 +174,13 @@
                 else if (type === '3') { const parts = inputValRaw.split(':'); xxx = parseInt(parts[0], 16) - 2047; yy = parseInt(parts[1], 16) - 127; zzz = parseInt(parts[2], 16) - 2047; sss = parseInt(parts[3], 16); p = 1; portalCode = `${p.toString(16)}${sss.toString(16).padStart(3,'0')}${(yy&0xFF).toString(16).padStart(2,'0')}${(zzz&0xFFF).toString(16).padStart(3,'0')}${(xxx&0xFFF).toString(16).padStart(3,'0')}`; }
                 else if (type === '5') { const clean = inputValRaw.toLowerCase().replace('0x', ''); p = parseInt(clean.substring(2, 3), 16); sss = parseInt(clean.substring(3, 6), 16); yy = (parseInt(clean.substring(8, 10), 16) > 127) ? parseInt(clean.substring(8, 10), 16) - 256 : parseInt(clean.substring(8, 10), 16); zzz = (parseInt(clean.substring(10, 13), 16) > 2047) ? parseInt(clean.substring(10, 13), 16) - 4096 : parseInt(clean.substring(10, 13), 16); xxx = (parseInt(clean.substring(13, 16), 16) > 2047) ? parseInt(clean.substring(13, 16), 16) - 4096 : parseInt(clean.substring(13, 16), 16); portalCode = clean.substring(2); }
                 else { portalCode = inputValRaw; p = parseInt(portalCode[0], 16); sss = parseInt(portalCode.substring(1, 4), 16); yy = (parseInt(portalCode.substring(4, 6), 16) > 127) ? parseInt(portalCode.substring(4, 6), 16) - 256 : parseInt(portalCode.substring(4, 6), 16); zzz = (parseInt(portalCode.substring(6, 9), 16) > 2047) ? parseInt(portalCode.substring(6, 9), 16) - 4096 : parseInt(portalCode.substring(6, 9), 16); xxx = (parseInt(portalCode.substring(9, 12), 16) > 2047) ? parseInt(portalCode.substring(9, 12), 16) - 4096 : parseInt(portalCode.substring(9, 12), 16); }
-                lastResult = { galaxy, xxx, yy, zzz, p };
+                
+                lastResult = { galaxy, xxx, yy, zzz, p, sss };
                 const gx = (xxx + 2047) & 0xFFFF; const gy = (yy + 127) & 0xFFFF; const gz = (zzz + 2047) & 0xFFFF; 
                 const ua = "00" + p.toString(16).toUpperCase() + sss.toString(16).toUpperCase().padStart(3, '0') + galaxy.toString(16).toUpperCase().padStart(2, '0') + (yy & 0xFF).toString(16).toUpperCase().padStart(2, '0') + (zzz & 0xFFF).toString(16).toUpperCase().padStart(3, '0') + (xxx & 0xFFF).toString(16).toUpperCase().padStart(3, '0');
                 const isCore = (gx >= 0x07FA && gx <= 0x0802) && (gy >= 0x007A && gy <= 0x0081) && (gz >= 0x07FC && gz <= 0x0806);
-                document.getElementById('output').innerHTML = `<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${isCore ? "Core Void Detected" : "Standard Space"}</span></p>`;
+                
+                document.getElementById('output').innerHTML = `${renderGlyphs(portalCode)}<p><strong>Universal Address:</strong> ${ua}</p><p><strong>Galactic:</strong> ${gx.toString(16).toUpperCase().padStart(4,'0')}:${gy.toString(16).toUpperCase().padStart(4,'0')}:${gz.toString(16).toUpperCase().padStart(4,'0')}:${sss.toString(16).toUpperCase().padStart(4,'0')}</p><p><strong>Portal Code:</strong> ${portalCode.toUpperCase()}</p><p><strong>Status:</strong> <span class="${isCore ? 'warning' : ''}">${isCore ? "Core Void Detected" : "Standard Space"}</span></p>`;
                 document.getElementById('voxelOutput').innerText = JSON.stringify({ "UniverseAddress": { "RealityIndex": galaxy, "GalacticAddress": { "VoxelX": xxx, "VoxelY": yy, "VoxelZ": zzz, "SolarSystemIndex": sss, "PlanetIndex": p } } }, null, 4);
             } catch(e) { alert("Invalid input format!"); }
         }
