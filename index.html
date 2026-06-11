@@ -61,7 +61,9 @@
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
         .warning { color: #ff6666; font-weight: bold; }
-        .footer-images { text-align: center; margin-top: 30px; }
+        
+        /* Footer spacing added here to prevent banner overlap */
+        .footer-images { text-align: center; margin-top: 30px; margin-bottom: 120px; }
         .footer-image { width: 300px; margin: 10px; border: 1px solid #555; cursor: pointer; }
     </style>
 </head>
@@ -110,6 +112,11 @@
             <span style="color:#aaa; font-size:12px;">[-] Minimize</span>
         </div>
         <iframe src="https://havenmap.online/map/latest" width="100%" height="90%" style="border:none;" title="Haven Cartographer"></iframe>
+    </div>
+
+    <div class="footer-images">
+        <a href="img/CORE_VOID_MAP_256_v7.webp" target="_blank"><img src="img/CORE_VOID_MAP_256_v7.webp" class="footer-image" alt="Core Void Map"></a>
+        <a href="img/Glyphs.jpg" target="_blank"><img src="img/Glyphs.jpg" class="footer-image" alt="Glyph Decoder"></a>
     </div>
 
     <div id="cookie-banner" style="position:fixed; bottom:0; left:0; width:100%; background:rgba(0,0,0,0.9); color:white; padding:15px; text-align:center; border-top:1px solid #444; z-index:10001;">
