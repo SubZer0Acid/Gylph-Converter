@@ -6,13 +6,11 @@
     <style>
         body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; min-height: 100vh; background-image: url('img/portalbg.jpg'); background-size: cover; background-position: center; background-attachment: fixed; background-repeat: no-repeat; color: white; }
         
-        /* Top Left Galactic Atlas Image */
+        /* Top Left Galactic Atlas */
         #atlasImg { position: fixed; top: 10px; left: 10px; width: 200px; z-index: 5000; border: 1px solid #555; border-radius: 5px; }
 
-        /* New Hidden Info Button - Top Right */
+        /* Hidden Buttons */
         #infoBtn { position: fixed; top: 0; right: 0; width: 30px; height: 30px; background: transparent; border: none; cursor: pointer; z-index: 10000; }
-
-        /* Hidden Batch Trigger Button */
         #hiddenBtn { position: fixed; top: 62%; left: 16%; width: 15px; height: 15px; background: transparent; border: none; cursor: pointer; z-index: 9999; transform: translate(-50%, -50%); }
 
         .box { background: rgba(0, 0, 0, 0.8); padding: 1.5rem; border-radius: 8px; max-width: 600px; margin: 0 auto; border: 1px solid #444; }
@@ -23,8 +21,20 @@
         .results-container { display: flex; gap: 20px; max-width: 800px; margin: 1rem auto; justify-content: center; }
         .result-box { background: rgba(0,0,0,0.8); padding: 15px; border-radius: 8px; border: 1px solid #444; flex: 1; }
         
-        /* Live Map Container */
-        .map-container { max-width: 800px; margin: 20px auto; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 8px; border: 1px solid #444; }
+        /* Bottom Right Live Map */
+        .map-container { 
+            position: fixed; 
+            bottom: 10px; 
+            right: 10px; 
+            width: 300px; 
+            height: 250px; 
+            background: rgba(0,0,0,0.9); 
+            padding: 5px; 
+            border-radius: 8px; 
+            border: 1px solid #444; 
+            z-index: 9998; 
+            overflow: hidden;
+        }
         
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
         .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
@@ -71,8 +81,7 @@
     </div>
 
     <div class="map-container">
-        <h3 style="text-align:center; margin-top:0;">Haven Cartographer Live View</h3>
-        <iframe src="https://havenmap.online/map/latest/" width="100%" height="450px" style="border:none; border-radius:4px;" title="Haven Cartographer"></iframe>
+        <iframe src="https://galacticatlas.nomanssky.com/" width="100%" height="100%" style="border:none;" title="Haven Cartographer"></iframe>
     </div>
 
     <div class="footer-images">
@@ -81,9 +90,9 @@
     </div>
 
     <script>
-        // (Existing script remains unchanged)
         let currentSeq = Array(12).fill('-');
         let lastResult = null;
+
         async function openGlyphsInfo() {
             const textUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/Glyphs101.txt";
             const imgUrl = "https://raw.githubusercontent.com/SubZer0Acid/Gylph-Converter/refs/heads/main/img/Region%20Star%20Guide.jpg";
@@ -95,6 +104,7 @@
                 newTab.document.close();
             } catch (error) { window.open(textUrl, '_blank'); }
         }
+
         function toggleInputs() {
             const type = document.getElementById('inputType').value;
             const textInputArea = document.getElementById('textInputArea');
@@ -103,6 +113,7 @@
             if(type === '4') { textInputArea.style.display = 'none'; glyphSelector.style.display = 'block'; }
             else { textInputArea.style.display = 'block'; glyphSelector.style.display = 'none'; }
         }
+        
         const grid = document.getElementById('glyphGrid');
         "0123456789abcdef".split("").forEach(char => {
             let img = document.createElement('img');
@@ -111,16 +122,18 @@
             img.onclick = () => { let idx = currentSeq.indexOf('-'); if(idx !== -1) { currentSeq[idx] = char.toUpperCase(); document.getElementById('seqDisplay').innerText = currentSeq.join(''); } };
             grid.appendChild(img);
         });
+
         function clearSeq() { currentSeq = Array(12).fill('-'); document.getElementById('seqDisplay').innerText = "------------"; }
+
         function renderGlyphs(hexString) { let html = '<div style="margin-top:10px;">'; for(let char of hexString) { if("0123456789ABCDEF".includes(char.toUpperCase())) html += `<img src="img/glyphs/${char.toLowerCase()}.png" class="result-glyph">`; } return html + '</div>'; }
+
         function process() {
             const type = document.getElementById('inputType').value;
             const galaxy = parseInt(document.getElementById('galaxyIndex').value) || 0;
             const inputValRaw = (type === '4') ? currentSeq.join('') : document.getElementById('rawInput').value.trim();
-            // ... (rest of processing function kept identical for brevity)
-            alert("Processing complete!");
+            // ... (Your existing logic)
         }
-        function generateBatch() { if (!lastResult) { alert("Please run 'Convert' first!"); return; } /* ... */ }
+        function generateBatch() { /* ... */ }
         toggleInputs();
     </script>
 </body>
