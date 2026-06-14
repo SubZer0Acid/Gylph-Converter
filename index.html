@@ -59,10 +59,15 @@
         .map-header { background:#222; padding:5px; text-align:right; cursor: pointer; border-bottom: 1px solid #444; }
         
         h1 { text-align: center; text-shadow: 2px 2px 4px #000; margin-bottom: 5px; }
-        .signature { text-align: center; margin-bottom: 20px; font-style: italic; color: #ccc; line-height: 1.4; }
+        
+        /* Signature and Logo styles */
+        .signature-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .signature { text-align: right; font-style: italic; color: #ccc; line-height: 1.4; }
+        .logo-small { width: 60px; height: 60px; border-radius: 50%; border: 1px solid #555; }
+        
         .warning { color: #ff6666; font-weight: bold; }
         
-        /* Footer spacing added here to prevent banner overlap */
+        /* Footer spacing */
         .footer-images { text-align: center; margin-top: 30px; margin-bottom: 120px; }
         .footer-image { width: 300px; margin: 10px; border: 1px solid #555; cursor: pointer; }
     </style>
@@ -76,7 +81,10 @@
     <button id="realityBatchBtn" onclick="generateRealityBatch()"></button>
 
     <h1>No Man's Sky GlyphMaster</h1>
-    <div class="signature">Created By SubZer0Acid<br>Leader Of The Phantom-Zer0 Civ</div>
+    <div class="signature-container">
+        <div class="signature">Created By SubZer0Acid<br>Leader Of The Phantom-Zer0 Civ</div>
+        <img src="img/Phantom-Zer0%20Logo.jpg" alt="Phantom-Zer0 Logo" class="logo-small">
+    </div>
     
     <div class="box">
         <label>Reality Index (0-255):</label>
